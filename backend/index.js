@@ -108,14 +108,15 @@ app.get('/mostrarUsuarios', function (req, res) {
       let usuario = req.body.usuario;
       let nombre = req.body.nombre;
       let apellido = req.body.apellido;
-      let email = req.body.email;    
+      let email = req.body.email;  
+      let rol = req.body.rol;  
       //let password = req.body.password;
       //let rol = req.body.rol;
       let password = md5(req.body.password);
   
     conn.query(
       "insert into usuario2(usuario, nombre, apellido, email, password, rol) VALUES (?,?,?,?,?,?);",
-      [usuario, nombre, apellido, email, password, 1], // ROl: 0 -> administrador, 1 -> usuario normal
+      [usuario, nombre, apellido, email, password, rol], // ROl: 0 ->administrador, 1 ->repartidor, 2->usuario (consumidor), 3->empresa
       function (err, results, fields) {
         if (err) {
           console.log(err);

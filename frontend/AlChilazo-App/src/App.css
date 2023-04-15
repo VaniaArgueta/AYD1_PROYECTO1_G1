@@ -1,0 +1,81 @@
+/*#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}*/
+
+.banner {
+  display: inline-flex;
+  position: relative;
+  min-height: 350px;
+}
+
+.titulo{
+  position: absolute;
+  top:45%;
+  left: 80%;
+  color:#ffffff;
+}
+
+.contenedorFormulario {
+  justify-content: center;
+  width:500px;
+  margin: 0 auto;
+  
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 35% auto;
+  grid-template-rows: 500px;
+  gap: 0px 0px;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "uno dos";
+    height: 100%;
+    width: 95%;
+}
+
+.uno {
+  grid-area: uno;
+  background: #ffffff;
+  border: 3px solid #ffcc80;
+  border-radius: 5px;
+  padding: 8px;
+  text-align: center;
+  min-height: 2000px;
+}
+
+.dos {
+  grid-area: dos;
+  background: #ffffff;
+  border: 3px solid #ffcc80;
+  border-radius: 5px;
+  padding: 30px;
+  min-height: 2000px;
+}
+
+.datosPrincipales{
+  font-size: large;
+  /*color:rgb(255, 255, 255);*/
+  font-weight: bolder;
+  align-items: center;
+}
+
+.listaP{
+  font-size:medium;
+  color:rgb(255, 255, 255);
+  align-items: center;
+}
+
+.subTitulo {/*color: white;*/}
+
+.transparente {
+  background-color: transparent;
+}
+
+.centrado {
+  align-items: center;
+  text-align: center;
+}
