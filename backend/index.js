@@ -4,18 +4,77 @@ import bodyParser from 'body-parser';
 import cors from "cors";
 import dotenv from 'dotenv';
 import md5 from 'md5';
+import AWS from 'aws-sdk';
 
 dotenv.config();
 
-const app = express();
+const app = express();6
 var corsOptions = { origin: true, optionsSuccessStatus: 200 };
 app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '1000mb'}));
 
 app.get("/", function (req, res) {
-  res.send("Bienvenido a Pryecto 1 AlChilazo's NodeJs server")
+  res.send("Bienvenido a Proyecto 1 AlChilazo's NodeJs server")
 });
+
+// -----------------------------------------------START S3 SAVE IMAGE-----------------------------------------------------------------------
+app.post('/prueba', async function(req, res) {
+  const body = req.body;
+  console.log(body.id);
+  console.log(body.fileContent);
+  const url = await saveFilePDF(body.id, body.fileContent);
+  console.log(url.Location);
+  res.send(url);
+});
+// -----------------------------------------------END S3 SAVE IMAGE-----------------------------------------------------------------------//
+
+// -----------------------------------------------START S3 SAVE FILE PDF-----------------------------------------------------------------------
+
+const saveFilePDF = async (id, base64String) => {
+  const s3 = new AWS.S3({
+    region: process.env.REGION,
+    accessKeyId: process.env.ACCESSKEYID,
+    secretAccessKey: process.env.SECRETACCESSKEY,
+  })
+  const bucketName = process.env.BUCKETNAME
+  const base64Data = new Buffer.from(base64String, 'base64')
+  const params = {
+    Bucket: bucketName,
+    Key: `PDFs/${id}`,
+    Body: base64Data,
+    ContentEncoding: 'base64',
+    ContentType: 'application/pdf'
+  }
+  const response = await s3.upload(params).promise()
+  return response
+}
+// -----------------------------------------------END S3 SAVE FILE PDF-----------------------------------------------------------------------//
+
+
+// -----------------------------------------------START S3 SAVE IMAGE-----------------------------------------------------------------------
+const saveImagePedido = async (id, base64) =>{
+  var id = id
+  var foto = base64
+  //carpeta y nombre que quieran darle a la imagen
+  var cadena = 'Pedidos/' + id // fotos -> se llama la carpeta UBICACION
+  //se convierte la base64 a bytes
+  let buff = new Buffer.from(foto, 'base64')
+  var s3 = new AWS.S3({
+    region: process.env.REGION,
+    accessKeyId: process.env.ACCESSKEYID,
+    secretAccessKey: process.env.SECRETACCESSKEY,
+  }) // se crea una variable que pueda tener acceso a las caracteristicas de S3
+  const params = {
+    Bucket: process.env.BUCKETNAME, // nombre
+    Key: cadena, // Nombre de ubicacion
+    Body: buff, // Imagen enn bytes
+    ContentType: 'image', // tipo de contenido
+  }
+  const response = await s3.upload(params).promise()
+  return response
+}
+// -----------------------------------------------END S3 SAVE IMAGE-----------------------------------------------------------------------//
 
 // -----------------------------------------------LOGIN----------------------------------------------------
 app.get('/mostrarUsuarios', function (req, res) {
