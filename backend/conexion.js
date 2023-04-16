@@ -10,4 +10,22 @@ var config = {
 };
 const conn = new mysql.createConnection(config);
 
+export const query = ({sql , params = []})=>{
+  return new Promise((resolve,reject) =>{
+      if(!sql || !sql.length){
+          return reject(err)
+      }
+      conn.query(sql,params,function(err,result){
+          if(err){
+              return reject(err)
+          }
+          if(!result){
+              return reject(err)
+          }
+          
+          resolve(result)
+      })
+  })
+}
+
 export default conn;
