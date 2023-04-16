@@ -44,7 +44,7 @@
   border-radius: 5px;
   padding: 8px;
   text-align: center;
-  min-height: 2000px;
+  min-height: 600px;
 }
 
 .dos {
@@ -53,11 +53,11 @@
   border: 3px solid #ffcc80;
   border-radius: 5px;
   padding: 30px;
-  min-height: 2000px;
+  min-height: 600px;
 }
 
 .datosPrincipales{
-  font-size: large;
+  font-size: medium;
   /*color:rgb(255, 255, 255);*/
   font-weight: bolder;
   align-items: center;
@@ -76,6 +76,40 @@
 }
 
 .centrado {
-  align-items: center;
+  align-items: left;
+  align-content: left;
   text-align: center;
+  padding: 3%;
+}
+
+.btn {
+  font-size:medium !important;
+  width: 70%;
+}
+
+.rowS {
+  width: 100%;
+  padding: 0px;
+  height: 550px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.rowS::-webkit-scrollbar {
+  width: 12px;
+}
+
+.rowS::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(10, 10, 10, 0.3);
+  border-radius: 10px;
+  background-color: #4b4d49;
+}
+
+.rowS::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+  background-color: #e98b10;
 }

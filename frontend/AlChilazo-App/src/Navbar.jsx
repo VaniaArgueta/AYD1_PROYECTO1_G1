@@ -18,7 +18,7 @@ export const Navbar = () => {
 
 	return (
 		<>
-			<header style={{ height: '100px' }}>
+			<header style={{ height: '60px' }}>
 				<div className='banner'>
                     
 					<h1 className='titulo'>AlChilazo</h1>
