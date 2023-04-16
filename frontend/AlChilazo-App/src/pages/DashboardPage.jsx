@@ -89,7 +89,7 @@ export const DashboardPage = (props) => {
           </div>
         </div>
         <div className="dos">
-          <ModuloAcciones idUsuario={idUsuario} usuario={user} rol={rol} nombreCompleto={nombreCompleto} tipo={tipo} />
+          <ModuloAcciones idUsuario={idUsuario} usuario={user} rol={rol} nombreCompleto={nombreCompleto} tipo={tipo} setTipo={setTipo}/>
         </div>
       </div>
     </>

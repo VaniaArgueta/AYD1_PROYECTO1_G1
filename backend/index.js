@@ -1,5 +1,5 @@
 import express from 'express';
-import conn from "./conexion.js";
+import conn,{query} from "./conexion.js";
 import bodyParser from 'body-parser';
 import cors from "cors";
 import dotenv from 'dotenv';
@@ -166,6 +166,50 @@ app.post('/cambiarEstadoUsuario',function(req,res){
 });
 
 //-----------------------------FIN PERFIL ADMIN------------------------------------
+
+
+//---------------------------------EMPRESAS----------------------------------------
+app.post('/agregarProducto', async function(req,res){
+    let {nombre,categoria,precio,picture,empresaName} = req.body
+    picture = "sin_imagen"  //Temporal mientras se agregan los buckets
+
+    categoria = categoria.toUpperCase()
+    
+    let idCategoria = await query({
+      sql:`SELECT idCateProd AS idCategoria FROM CateProd WHERE CataProdDsc ="${categoria}"`
+    })
+
+    if(!idCategoria.length){
+      await query({
+        sql:`INSERT INTO CateProd(CataProdDsc) VALUES("${categoria}")`
+      })
+      idCategoria = await query({
+        sql:`SELECT idCateProd AS idCategoria FROM CateProd WHERE CataProdDsc ="${categoria}"`
+      })
+    }
+
+    let empresa = await query({
+      sql:`SELECT * FROM Empresa WHERE EmpNombre ="${empresaName}"`
+    })
+    //console.log(empresa)
+    console.log(empresaName)
+    if(!empresa.length){ 
+      return res.send({ "agregado": false })
+    }
+    
+    let {idEmpresa,idTipEmp,idCiudad,idDepto,idPais} = empresa[0]
+
+    query({
+      sql:`INSERT INTO EmpProd(idEmpresa,idTipEmp,idCiudad,idDepto,idPais,idCateProd,ProdDsc,ProdImg,precio) VALUES(?,?,?,?,?,?,?,?,?)`,
+      params:[idEmpresa,idTipEmp,idCiudad,idDepto,idPais,idCategoria[0].idCategoria,nombre,picture,precio]
+    })
+
+
+    return res.send({ "agregado": true })
+})
+
+
+//--------------------------------FIN EMPRESAS-------------------------------------
 
 app.listen(4000);
 console.log("Server running on port 4000");
