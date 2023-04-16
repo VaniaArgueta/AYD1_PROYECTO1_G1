@@ -21,6 +21,7 @@ export const LoginPage = () => {
      * 1: login correcto
      * -1: error inesperado o datos incorrectos
      * -2: contraseña incorrecta
+	 * 3: inactivo
      */
 
 	fetch(url)
@@ -46,6 +47,8 @@ export const LoginPage = () => {
 					alert('Error inesperado o datos incorrectos');
 				}else if(data.resultadoLogin== -2){
 					alert('Password incorrecta');
+				}else if(data.resultadoLogin== 3){
+					alert('Usuario inactivo, contacte al administrador.');
 				}else alert('error inesperado o datos incorrectos');
 
 			}   

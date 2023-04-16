@@ -42,9 +42,10 @@ app.get('/mostrarUsuarios', function (req, res) {
          * 1: login correcto
          * -1: error inesperado o datos incorrectos
          * -2: contraseña incorrecta
+         *  3: inactivo
          */
         //console.log('prueba '+md5(passwordRequest));
-        conn.query("SELECT * FROM usuario2 where usuario = ? ",[usuario], function (err, results, fields) {
+        conn.query("SELECT * FROM usuario2 where usuario = ?",[usuario], function (err, results, fields) {
             if (err) throw err;
             else {
               console.log("Selected " + results.length + " row(s).");   
@@ -53,6 +54,11 @@ app.get('/mostrarUsuarios', function (req, res) {
                 return res.send({ resultadoLogin: 0 });
               }
               else if(results.length === 1){
+                if(results[0].estado === 0){
+                  console.log('Usuario inactivo');
+                  return res.send({ resultadoLogin: 3 }); // 3 usuario inactivo           
+                }
+
                 password = md5(password);
                 console.log('password ingresada (después de encriptación):'+password)
                 if(results[0].password == password) {
@@ -128,6 +134,38 @@ app.get('/mostrarUsuarios', function (req, res) {
       }
     );
   });
+
+//------------------------------- PERFIL ADMINISTRADOR-----------------------------
+
+app.get('/listaUsuarios',function(req,res){
+  conn.query('SELECT * FROM usuario2', 
+      function (err, results, fields) {
+          if (err) throw err;
+          else console.log('Selected ' + results.length + ' row(s).');
+
+          res.send(results)
+          console.log('Done.');
+      })
+});
+
+app.post('/cambiarEstadoUsuario',function(req,res){
+  let estado = req.body.estado;
+  let idUsuario = req.body.idUsuario;
+
+  conn.query('UPDATE usuario2 SET estado = ? WHERE idUsuario = ?;', [estado,idUsuario],
+  function (err, results, fields) {
+      if (err){
+          console.log(err)
+          return res.send({ "actualizado": false })
+      }
+      else{
+           console.log('Se actualiza ' + results.affectedRows + ' usuario(s).');
+           return res.send({ "actualizado": true })
+      }
+ });
+});
+
+//-----------------------------FIN PERFIL ADMIN------------------------------------
 
 app.listen(4000);
 console.log("Server running on port 4000");
