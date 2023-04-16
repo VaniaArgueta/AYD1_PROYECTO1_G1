@@ -25,6 +25,7 @@ import {Pedidos} from './Empresa/Pedidos';
 import {OfertasYCombos} from './Empresa/OfertasYCombos';
 import {ReportesEmpresa} from './Empresa/ReportesEmpresa';
 import {InformeRestaurantes} from './Empresa/InformeRestaurantes';
+import AgregarProducto from './Empresa/AgregarProducto';
 
 export const ModuloAcciones = (props) => {
   
@@ -60,7 +61,9 @@ export const ModuloAcciones = (props) => {
     case 14:
       return <CatalogoProductos />;
     case 15:
-      return <PanelControl />;
+      return <PanelControl setTipo={props.setTipo} />;
+    case 151:
+      return <AgregarProducto usuario={props.usuario}/>;
     case 16:
       return <Pedidos />;
     case 17:
