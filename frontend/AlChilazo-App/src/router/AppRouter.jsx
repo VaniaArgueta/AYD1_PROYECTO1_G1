@@ -8,6 +8,7 @@ import {
 	PruebaPage,
 } from '../pages';
 import { PrivateRoute } from './PrivateRoute';
+import { RegistroEmpresa } from '../pages/RegistroEmpresa';
 
 export const AppRouter = () => {
 	return (
@@ -17,6 +18,7 @@ export const AppRouter = () => {
 					<Route index element={<HomePage />} />
 					<Route path='login' element={<LoginPage />} />
 					<Route path='register' element={<RegisterPage />} />
+					<Route path='registerEmpresa' element={<RegistroEmpresa />} />
 					<Route path='prueba' element={<PruebaPage />} />
 					<Route
 						path='dashboard/:user'

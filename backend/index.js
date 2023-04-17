@@ -194,6 +194,70 @@ app.get('/mostrarUsuarios', function (req, res) {
     );
   });
 
+
+  app.post('/resgistroEmpresa', async function(req,res){
+    const {usuario,nombre,nit,email,password,categoria,pdfFile,departamento,ciudad,descripcion} = req.body
+    const pdfUrls = []
+    let pdfUrl = ""
+
+    const idUsuario = await query({
+      sql:`SELECT idUsuario AS id FROM usuario2 WHERE usuario="${usuario}"`
+    })
+    if(idUsuario.length>0){
+      return res.send({agregado:false,error:"Ya existe un usuario registrado con el username utilizado"})
+    }
+
+    const empresaExiste = await query({
+      sql:`SELECT idEmpresa FROM Empresa WHERE EmpNombre="${nombre}"`
+    })
+    if(empresaExiste.length>0){
+      return res.send({agregado:false,error:"Ya existe una empresa registrada con ese nombre"})
+    }
+
+    const idTipoDoc = await query({
+      sql:`SELECT idTipDoc AS id FROM TipoDocu WHERE TipDocDsc="PDF"`
+    })
+    if(idTipoDoc.length===0) return res.send({agregado:false,error:"Error al seleccionar categoria de archivo PDF"})
+
+
+    const idDepartamento = await query({
+      sql:`SELECT idDepto as id FROM Departamento WHERE DeptoDsc = "${departamento}"`
+    })
+
+    const idCiudad = await query({
+      sql:`SELECT idCiudad as id FROM Ciudad WHERE CiudadDsc = "${ciudad}"`
+    })
+
+    const idCategoria = await query({
+      sql:`SELECT idTipEmp as id FROM TipoEmpresa WHERE TipEmpDsc = "${categoria}"`
+    })
+
+    //Se inserta la empresa en la tabla empresa y en la tabla usuario
+    await query({
+      sql:`INSERT INTO Empresa(idTipEmp,idCiudad,idDepto,idPais,NIT,EmpNombre,EmpDsc,EmpEmail,EmpEst) VALUES(?,?,?,?,?,?,?,?,?)`,
+      params:[idCategoria[0].id,idCiudad[0].id,idDepartamento[0].id,1,nit,nombre,descripcion,email,0]
+    })
+    await query({
+      sql:`INSERT INTO usuario2(usuario,nombre,apellido,email,password,estado,rol) VALUES(?,?,?,?,?,?,?)`,
+      params:[usuario,nombre,nombre,email,password,0,3]
+    })
+
+    const idEmpresa = await query({
+      sql:`SELECT idEmpresa AS id FROM Empresa WHERE EmpNombre="${nombre}"`
+    })
+
+    for(let pdf of pdfFile){
+      pdfUrl = await saveFilePDF(pdf.pdfName+Date.now().toString()+".pdf",pdf.pdfContent)
+      pdfUrls.push(pdfUrl.Location)
+      query({
+        sql:`INSERT INTO empDocs(idTipDoc,idEmpresa,idTipEmp,idCiudad,idDepto,idPais,Docu,DocFecCarga) VALUES(?,?,?,?,?,?,?,sysdate())`,
+        params:[idTipoDoc[0].id,idEmpresa[0].id,idCategoria[0].id,idCiudad[0].id,idDepartamento[0].id,1,pdfUrl.Location]
+      })
+    }
+    console.log(pdfUrls)
+    return res.send({agregado:true,error:""})
+  })
+
 //------------------------------- PERFIL ADMINISTRADOR-----------------------------
 
 app.get('/listaUsuarios',function(req,res){
@@ -263,8 +327,29 @@ app.post('/agregarProducto', async function(req,res){
       params:[idEmpresa,idTipEmp,idCiudad,idDepto,idPais,idCategoria[0].idCategoria,nombre,picture,precio]
     })
 
-
     return res.send({ "agregado": true })
+})
+
+
+app.get('/ciudades/(:departamento)', async function(req,res){
+  const {departamento} = req.params
+  const idDepartamento = await query({
+    sql:`SELECT idDepto as id FROM Departamento WHERE DeptoDsc = "${departamento}"`
+  })
+  if(idDepartamento.length<0) return res.send([])
+  const ciudades = await query({
+    sql:`SELECT CiudadDsc as ciudad FROM Ciudad WHERE IdDepto="${idDepartamento[0].id}"`
+  })
+  //console.log(ciudades)
+  return res.send(ciudades)
+})
+
+app.get('/departamentos',async function(req,res){
+  const departamentos = await query({
+    sql:`SELECT DeptoDsc as departamento FROM Departamento`
+  })
+  //console.log(departamentos)
+  return res.send(departamentos)
 })
 
 
