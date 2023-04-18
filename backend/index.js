@@ -77,9 +77,9 @@ app.post('/registroRepartidor', async function(req,res){
   const fechaFormateada = format(new Date(fecha), "yyyy/MM/dd");
   console.log(fechaFormateada); // "2023/04/12"
   await query({
-    sql:`INSERT INTO Repartidor(idCiudad,idDepto,idPais,RepNom1,RepNom2,RepFecEstatus,RepFecNac,RepNumCel,RepCorrElect,
-    RepCV, RepTransProp,RepEst) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`,
-    params:[idCiudad[0].id,idDepartamento[0].id,1,nombre1,nombre2,0,fechaFormateada,telefono,email,url.Location,propio,0]
+    sql:`INSERT INTO Repartidor(idCiudad,idDepto,idPais,RepNom1,RepNom2,RepApe1,RepApe2,RepFecEstatus,RepFecNac,RepNumCel,RepCorrElect,
+    RepCV, RepTransProp,RepEst) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+    params:[idCiudad[0].id,idDepartamento[0].id,1,nombre1,nombre2,apellido1,apellido2,0,fechaFormateada,telefono,email,url.Location,propio,0]
   })
   await query({
     sql:`INSERT INTO usuario2(usuario,nombre,apellido,email,password,estado,rol) VALUES(?,?,?,?,?,?,?)`,
@@ -89,17 +89,19 @@ app.post('/registroRepartidor', async function(req,res){
     sql:`SELECT idRepartidor FROM Repartidor WHERE RepNom1="${nombre1}" AND RepNom2="${nombre2}" AND 
     RepApe1 ="${apellido1}" AND RepApe2 ="${apellido2}"`
   })
+  console.log(idRepartidor)
   if (hasLicense){
-    
+    const fecha1 = fechaVencimiento;
+    const fechaFormateada1 = format(new Date(fecha1), "yyyy/MM/dd");
     await query({
       sql:`INSERT INTO RepLicencia(idRepartidor,idCiudad,idDepto,idPais,RepNumLic,RepTipoLic,RepFecExpLic) VALUES(?,?,?,?,?,?,?)`,
-      params:[idRepartidor[0].id,idCiudad[0].id,idDepartamento[0].id,1,noLicencia,licenseType,fechaVencimiento]
+      params:[idRepartidor[0].idRepartidor,idCiudad[0].id,idDepartamento[0].id,1,noLicencia,licenseType,fechaFormateada1]
     })
   }
   if (hasTransporte){
     await query({
-      sql:`INSERT INTO RepVehiculo(VehPlacaNum,VehTipPlaca,idRepartidor,idCiudad,idDepto,idPais,RepVehiculoEst) VALUES(?,?,?,?,?,?)`,
-      params:[noPlaca,"M",idRepartidor[0].id,idCiudad[0].id,idDepartamento[0].id,1]
+      sql:`INSERT INTO RepVehiculo(VehPlacaNum,VehTipPlaca,idRepartidor,idCiudad,idDepto,idPais,RepVehiculoEst) VALUES(?,?,?,?,?,?,?)`,
+      params:[noPlaca,"M",idRepartidor[0].idRepartidor,idCiudad[0].id,idDepartamento[0].id,1,1]
     })
   }
   return res.send({agregado:true,error:""})
