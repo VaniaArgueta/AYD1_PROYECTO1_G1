@@ -6,6 +6,7 @@ import {
 	LoginPage,
 	RegisterPage,
 	PruebaPage,
+	RegistroRepartidor,
 } from '../pages';
 import { PrivateRoute } from './PrivateRoute';
 import { RegistroEmpresa } from '../pages/RegistroEmpresa';
@@ -20,6 +21,7 @@ export const AppRouter = () => {
 					<Route path='register' element={<RegisterPage />} />
 					<Route path='registerEmpresa' element={<RegistroEmpresa />} />
 					<Route path='prueba' element={<PruebaPage />} />
+					<Route path='regrepartidor' element={<RegistroRepartidor />} />
 					<Route
 						path='dashboard/:user'
 						element={
