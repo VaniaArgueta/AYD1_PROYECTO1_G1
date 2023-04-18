@@ -19,6 +19,11 @@ app.get("/", function (req, res) {
   res.send("Bienvenido a Proyecto 1 AlChilazo's NodeJs server")
 });
 
+// -----------------------------------------------PERFIL REPARTIDOR-----------------------------------------------------------------------
+
+
+// -----------------------------------------------FIN PERFIL REPARTIDOR -----------------------------------------------------------------------//
+
 // -----------------------------------------------REGISTRO REPARTIDOR-----------------------------------------------------------------------
 app.post('/registroRepartidor', async function(req,res){
   const {usuario,
@@ -107,27 +112,7 @@ app.post('/registroRepartidor', async function(req,res){
   return res.send({agregado:true,error:""})
 });
 
-app.get('/ciudades/(:departamento)', async function(req,res){
-  const {departamento} = req.params
-  const idDepartamento = await query({
-    sql:`SELECT idDepto as id FROM Departamento WHERE DeptoDsc = "${departamento}"`
-  })
-  if(idDepartamento.length<0) return res.send([])
-  const ciudades = await query({
-    sql:`SELECT CiudadDsc as ciudad FROM Ciudad WHERE IdDepto="${idDepartamento[0].id}"`
-  })
-  //console.log(ciudades)
-  return res.send(ciudades)
-})
-
-app.get('/departamentos',async function(req,res){
-  const departamentos = await query({
-    sql:`SELECT DeptoDsc as departamento FROM Departamento`
-  })
-  //console.log(departamentos)
-  return res.send(departamentos)
-})
-// -----------------------------------------------REGISTRO REPARTIDOR -----------------------------------------------------------------------//
+// -----------------------------------------------FIN REGISTRO REPARTIDOR -----------------------------------------------------------------------//
 
 // -----------------------------------------------START S3 SAVE IMAGE-----------------------------------------------------------------------
 app.post('/prueba', async function(req, res) {
