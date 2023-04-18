@@ -5,8 +5,10 @@ import { Grid } from 'semantic-ui-react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'semantic-ui-css/semantic.min.css';
+import { useNavigate } from "react-router-dom";
 
 export const RegistroRepartidor = () => {
+    const navigate = useNavigate();
     const [usuario, setUsuario] = useState("");
     const [nombre1, setNombre1] = useState("");
     const [nombre2, setNombre2] = useState("");
@@ -107,6 +109,7 @@ export const RegistroRepartidor = () => {
                 alert(response.data.error)
             }else{
                 alert("Se ha registrado correctamente. Espere que su usuario sea aceptado por un administrador")
+                navigate('/')
             }
         });
         } else alert("La confirmación de contraseña no coincide");
@@ -135,9 +138,6 @@ export const RegistroRepartidor = () => {
     
     const handleLicenseTypeChange = (event) => {
         setLicenseType(event.target.value);
-    };
-    const handleChange = (e) => {
-        setLicencia(e.target.value);
     };
 
     const handleDepto = (e) => {
