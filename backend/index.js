@@ -5,10 +5,11 @@ import cors from "cors";
 import dotenv from 'dotenv';
 import md5 from 'md5';
 import AWS from 'aws-sdk';
+import { format } from 'date-fns';
 
 dotenv.config();
 
-const app = express();6
+const app = express();
 var corsOptions = { origin: true, optionsSuccessStatus: 200 };
 app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -17,6 +18,114 @@ app.use(bodyParser.json({limit: '1000mb'}));
 app.get("/", function (req, res) {
   res.send("Bienvenido a Proyecto 1 AlChilazo's NodeJs server")
 });
+
+// -----------------------------------------------REGISTRO REPARTIDOR-----------------------------------------------------------------------
+app.post('/registroRepartidor', async function(req,res){
+  const {usuario,
+    nombre1,
+    nombre2,
+    apellido1,
+    apellido2,
+    fechaNacimiento,
+    telefono,
+    email,
+    password,
+    hasLicense,
+    licenseType,
+    fechaVencimiento,
+    hasTransporte,
+    noPlaca,
+    noLicencia,
+    id,
+    fileContent,
+    departamento,
+    ciudad} = req.body
+
+  const idUsuario = await query({
+    sql:`SELECT idUsuario AS id FROM usuario2 WHERE usuario="${usuario}"`
+  })
+  if(idUsuario.length>0){
+    return res.send({agregado:false,error:"Ya existe un usuario registrado con el username utilizado"})
+  }
+
+  const repartidorExiste = await query({
+    sql:`SELECT idRepartidor FROM Repartidor WHERE RepNom1="${nombre1}" AND RepNom2="${nombre2}" AND 
+    RepApe1 ="${apellido1}" AND RepApe2 ="${apellido2}"`
+  })
+  if(repartidorExiste.length>0){
+    return res.send({agregado:false,error:"Ya existe un repartidor registrado con ese nombre"})
+  }
+
+  const idDepartamento = await query({
+    sql:`SELECT idDepto as id FROM Departamento WHERE DeptoDsc = "${departamento}"`
+  })
+
+  const idCiudad = await query({
+    sql:`SELECT idCiudad as id FROM Ciudad WHERE CiudadDsc = "${ciudad}"`
+  })
+
+  const url = await saveFilePDF(id+Date.now().toString(), fileContent);
+  //Se inserta el repartidor en la tabla repartidor y en la tabla usuario
+  let propio = 0;
+  if (hasTransporte){
+    propio = 1;
+  };
+  let pass = md5(password)
+  console.log(idCiudad)
+  console.log(idDepartamento)
+  const fecha = fechaNacimiento;
+  const fechaFormateada = format(new Date(fecha), "yyyy/MM/dd");
+  console.log(fechaFormateada); // "2023/04/12"
+  await query({
+    sql:`INSERT INTO Repartidor(idCiudad,idDepto,idPais,RepNom1,RepNom2,RepFecEstatus,RepFecNac,RepNumCel,RepCorrElect,
+    RepCV, RepTransProp,RepEst) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`,
+    params:[idCiudad[0].id,idDepartamento[0].id,1,nombre1,nombre2,0,fechaFormateada,telefono,email,url.Location,propio,0]
+  })
+  await query({
+    sql:`INSERT INTO usuario2(usuario,nombre,apellido,email,password,estado,rol) VALUES(?,?,?,?,?,?,?)`,
+    params:[usuario,nombre1+' '+nombre2,apellido1+' '+apellido2,email,pass,0,1]
+  })
+  const idRepartidor = await query({
+    sql:`SELECT idRepartidor FROM Repartidor WHERE RepNom1="${nombre1}" AND RepNom2="${nombre2}" AND 
+    RepApe1 ="${apellido1}" AND RepApe2 ="${apellido2}"`
+  })
+  if (hasLicense){
+    
+    await query({
+      sql:`INSERT INTO RepLicencia(idRepartidor,idCiudad,idDepto,idPais,RepNumLic,RepTipoLic,RepFecExpLic) VALUES(?,?,?,?,?,?,?)`,
+      params:[idRepartidor[0].id,idCiudad[0].id,idDepartamento[0].id,1,noLicencia,licenseType,fechaVencimiento]
+    })
+  }
+  if (hasTransporte){
+    await query({
+      sql:`INSERT INTO RepVehiculo(VehPlacaNum,VehTipPlaca,idRepartidor,idCiudad,idDepto,idPais,RepVehiculoEst) VALUES(?,?,?,?,?,?)`,
+      params:[noPlaca,"M",idRepartidor[0].id,idCiudad[0].id,idDepartamento[0].id,1]
+    })
+  }
+  return res.send({agregado:true,error:""})
+});
+
+app.get('/ciudades/(:departamento)', async function(req,res){
+  const {departamento} = req.params
+  const idDepartamento = await query({
+    sql:`SELECT idDepto as id FROM Departamento WHERE DeptoDsc = "${departamento}"`
+  })
+  if(idDepartamento.length<0) return res.send([])
+  const ciudades = await query({
+    sql:`SELECT CiudadDsc as ciudad FROM Ciudad WHERE IdDepto="${idDepartamento[0].id}"`
+  })
+  //console.log(ciudades)
+  return res.send(ciudades)
+})
+
+app.get('/departamentos',async function(req,res){
+  const departamentos = await query({
+    sql:`SELECT DeptoDsc as departamento FROM Departamento`
+  })
+  //console.log(departamentos)
+  return res.send(departamentos)
+})
+// -----------------------------------------------REGISTRO REPARTIDOR -----------------------------------------------------------------------//
 
 // -----------------------------------------------START S3 SAVE IMAGE-----------------------------------------------------------------------
 app.post('/prueba', async function(req, res) {
@@ -140,6 +249,7 @@ app.get('/mostrarUsuarios', function (req, res) {
         
   });
   
+
   
   // -----------------------------------------------REGISTRO-----------------------------------------------------------------------
   
