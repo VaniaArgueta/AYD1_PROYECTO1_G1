@@ -311,6 +311,7 @@ app.get('/mostrarUsuarios', function (req, res) {
     const {usuario,nombre,nit,email,password,categoria,pdfFile,departamento,ciudad,descripcion} = req.body
     const pdfUrls = []
     let pdfUrl = ""
+    let pass = md5(password);
 
     const idUsuario = await query({
       sql:`SELECT idUsuario AS id FROM usuario2 WHERE usuario="${usuario}"`
@@ -351,7 +352,7 @@ app.get('/mostrarUsuarios', function (req, res) {
     })
     await query({
       sql:`INSERT INTO usuario2(usuario,nombre,apellido,email,password,estado,rol) VALUES(?,?,?,?,?,?,?)`,
-      params:[usuario,nombre,nombre,email,password,0,3]
+      params:[usuario,nombre,nombre,email,pass,0,3]
     })
 
     const idEmpresa = await query({
@@ -406,7 +407,7 @@ app.post('/cambiarEstadoUsuario',function(req,res){
 //---------------------------------EMPRESAS----------------------------------------
 app.post('/agregarProducto', async function(req,res){
     let {nombre,categoria,precio,picture,empresaName} = req.body
-    picture = "sin_imagen"  //Temporal mientras se agregan los buckets
+    picture = await (await saveImagePedido(Date.now().toString()+".png",picture)).Location
 
     categoria = categoria.toUpperCase()
     
@@ -424,9 +425,9 @@ app.post('/agregarProducto', async function(req,res){
     }
 
     let empresa = await query({
-      sql:`SELECT * FROM Empresa WHERE EmpNombre ="${empresaName}"`
+      sql:`SELECT * FROM Empresa e, usuario2 u WHERE u.usuario="${empresaName}" AND u.rol=3 AND e.EmpNombre = u.nombre`
     })
-    //console.log(empresa)
+    console.log(empresa)
     console.log(empresaName)
     if(!empresa.length){ 
       return res.send({ "agregado": false })
@@ -440,6 +441,32 @@ app.post('/agregarProducto', async function(req,res){
     })
 
     return res.send({ "agregado": true })
+})
+
+app.get('/catalogoProductos/(:userEmpresa)', async (req,res)=>{
+  const {userEmpresa} = req.params
+  const catalogo = []
+  const consulta =`SELECT e.idEmpresa FROM Empresa e, usuario2 u WHERE u.usuario="${userEmpresa}" AND u.rol=3 AND e.EmpNombre = u.nombre`
+  console.log(consulta)
+  const idEmpresa = await query({
+    sql:`SELECT e.idEmpresa AS id FROM Empresa e, usuario2 u WHERE u.usuario="${userEmpresa}" AND u.rol=3 AND e.EmpNombre = u.nombre`
+  })
+  console.log(idEmpresa)
+
+  const categorias = await query({
+    sql:`SELECT * FROM CateProd`
+  })
+  
+  for(let categoria of categorias){
+    console.log(`SELECT * FROM EmpProd WHERE idEmpresa=${idEmpresa[0].id} AND idCateProd="${categoria.idCateProd}"`)
+    const productos = await query({
+      sql:`SELECT * FROM EmpProd WHERE idEmpresa=${idEmpresa[0].id} AND idCateProd="${categoria.idCateProd}"`
+    })
+    catalogo.push({categoria,productos})
+  }
+  
+  res.send({productos:catalogo,error:""})
+
 })
 
 

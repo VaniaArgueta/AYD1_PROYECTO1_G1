@@ -55,6 +55,15 @@ export const RegistroEmpresa = () => {
     console.log(categoria);
     console.log(pdfFile);
 
+    if (deptoSelected === ""){
+      alert("Debe de seleccionar un departamento")
+      return
+    };
+    if (ciudadSelected === ""){
+      alert("Debe de seleccionar una ciudad")
+      return
+    };
+
     const data = {
       usuario,
       nombre,

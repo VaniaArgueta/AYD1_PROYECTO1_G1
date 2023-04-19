@@ -59,7 +59,7 @@ export const ModuloAcciones = (props) => {
     case 13:
       return <HistorialPedidosUsuario />;
     case 14:
-      return <CatalogoProductos />;
+      return <CatalogoProductos usuario={props.usuario} ></CatalogoProductos>
     case 15:
       return <PanelControl setTipo={props.setTipo} />;
     case 151:
