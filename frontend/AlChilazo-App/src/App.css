@@ -84,7 +84,11 @@
 
 .btn {
   font-size:medium !important;
-  width: 40%;
+  width: 70%;
+}
+
+.btn-login {
+  width: 40% !important;
 }
 
 .btn-info {

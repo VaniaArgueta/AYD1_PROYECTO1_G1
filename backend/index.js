@@ -414,7 +414,7 @@ app.post('/cambiarEstadoUsuario', function (req, res) {
 });
 
 app.get('/solicitudesRepartidor', function (req, res) {
-  conn.query('select rep.*, (select Pais from Pais where idPais = rep.idPais) as pais, (select Pais from Departamento where idDepto = rep.idDepto) as departamento, (select Pais from Ciudad where idCiudad = rep.idCiudad) as ciudad from Repartidor rep where RepEst = 2',
+  conn.query('select rep.*, (select Pais from Pais where idPais = rep.idPais) as pais, (select DeptoDsc from Departamento where idDepto = rep.idDepto) as departamento, (select CiudadDsc from Ciudad where idCiudad = rep.idCiudad) as ciudad from Repartidor rep where RepEst = 2',
     function (err, results, fields) {
       if (err) throw err;
       else console.log('Selected ' + results.length + ' row(s).');
@@ -448,6 +448,27 @@ app.post('/aprobarSolicitud', async function (req, res) {
     })
   }
   return res.send({ "actualizado": true })
+});
+
+app.get('/solicitudesEmpresa', function (req, res) {
+  conn.query('select emp.*,(select TipEmpDsc from TipoEmpresa where idTipEmp = emp.idTipEmp) as tipoEmpresa,(select Pais from Pais where idPais = emp.idPais) as pais,(select DeptoDsc from Departamento where idDepto = emp.idDepto) as departamento,(select CiudadDsc from Ciudad where idCiudad = emp.idCiudad) as ciudad from Empresa emp where EmpEst = 2',
+    function (err, results, fields) {
+      if (err) throw err;
+      else console.log('Selected ' + results.length + ' row(s).');
+
+      res.send(results)
+      console.log('Done.');
+    })
+});
+
+app.post("/docsEmpresa", function (req, res) {
+  let idEmpresa = req.body.idEmpresa;
+  conn.query("select Docu from empDocs where idEmpresa = ?", [idEmpresa],
+    function (err, results, fields) {
+      if (err) throw err;
+      else console.log("selected " + results.length + " row(s).");
+      res.send(({ data: results }));
+    });
 });
 
 //-----------------------------FIN PERFIL ADMIN------------------------------------

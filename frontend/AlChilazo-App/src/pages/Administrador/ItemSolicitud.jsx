@@ -1,6 +1,5 @@
 import React from 'react';
 import './style.css';
-import axios from "axios";
 
 export const ItemSolicitud = (props) => {
     return (
@@ -14,15 +13,33 @@ export const ItemSolicitud = (props) => {
                                 <path fillRule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" />
                             </svg>
                         </div>
-                        <div className="col-6">
-                            <div className="card-body">
-                                <p className="card-text"><label className='label-info'>Nombres: </label>{props.RepNom1 + ' ' + props.RepNom2}</p>
-                                <p className="card-text"><label className='label-info'>Fecha Nac.: </label>{props.RepFecNac}</p>
-                                <p className="card-text"><label className='label-info'>Telefono: </label>{props.RepNumCel}</p>
-                                <p className="card-text"><label className='label-info'>Correo: </label>{props.RepCorrElect}</p>
-                                <p className="card-text" style={{ visibility: "hidden" }}>{props.ididRepartidor}</p>
-                            </div>
-                        </div>
+                        {
+                            props.tipo === 1
+                                ?
+                                (
+                                    <div className="col-6">
+                                        <div className="card-body">
+                                            <p className="card-text"><label className='label-info'>Nombres: </label>{props.RepNom1 + ' ' + props.RepNom2}</p>
+                                            <p className="card-text"><label className='label-info'>Fecha Nac.: </label>{props.RepFecNac}</p>
+                                            <p className="card-text"><label className='label-info'>Telefono: </label>{props.RepNumCel}</p>
+                                            <p className="card-text"><label className='label-info'>Correo: </label>{props.RepCorrElect}</p>
+                                            <p className="card-text" style={{ visibility: "hidden" }}>{props.ididRepartidor}</p>
+                                        </div>
+                                    </div>
+                                )
+                                :
+                                (
+                                    <div className="col-6">
+                                        <div className="card-body">
+                                            <p className="card-text"><label className='label-info'>Empresa: </label>{props.EmpNombre}</p>
+                                            <p className="card-text"><label className='label-info'>Descripción: </label>{props.EmpDsc}</p>
+                                            <p className="card-text"><label className='label-info'>NIT: </label>{props.NIT}</p>
+                                            <p className="card-text"><label className='label-info'>Correo: </label>{props.EmpEmail}</p>
+                                            <p className="card-text" style={{ visibility: "hidden" }}>{props.ididRepartidor}</p>
+                                        </div>
+                                    </div>
+                                )
+                        }
                     </div>
                 </div>
             </div>

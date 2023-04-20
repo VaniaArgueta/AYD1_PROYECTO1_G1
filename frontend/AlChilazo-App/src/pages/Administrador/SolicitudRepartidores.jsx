@@ -70,6 +70,7 @@ export const SolicitudRepartidores = (props) => {
                         pais={item.pais}
                         departamento={item.departamento}
                         ciudad={item.ciudad}
+                        tipo={1}
                         item={item}
                         key={index}
                       />
