@@ -21,6 +21,13 @@ app.get("/", function (req, res) {
 
 // -----------------------------------------------PERFIL REPARTIDOR-----------------------------------------------------------------------
 
+app.post('/Informacion',async function(req,res){
+  const departamentos = await query({
+    sql:`SELECT DeptoDsc as departamento FROM Departamento`
+  })
+  //console.log(departamentos)
+  return res.send(departamentos)
+})
 
 // -----------------------------------------------FIN PERFIL REPARTIDOR -----------------------------------------------------------------------//
 
