@@ -7,6 +7,21 @@ export const ItemUsuario = (props) => {
     const url = 'http://localhost:4000/cambiarEstadoUsuario';
     //console.log(props)
 
+    function rolInText(param) {
+        switch (param) {
+            case 0:
+                return 'ADMIN';
+            case 1:
+                return 'REPARTIDOR';
+            case 2:
+                return 'USUARIO';
+            case 3:
+                return 'EMPRESA';
+            default:
+                return 'DESCONOCIDO';
+        }
+    }
+
     function changeStatus(id, status) {
         console.log("id: " + id + ", status: " + status);
         axios
@@ -34,7 +49,8 @@ export const ItemUsuario = (props) => {
                         <div className="col-6">
                             <div className="card-body">
                                 <p className="card-text"><label className='label-info'>Nombres: </label>{props.nombre + ' ' + props.apellido}</p>
-                                <p className="card-text"><label className='label-info'>Rol: </label>{props.usuario}</p>
+                                <p className="card-text"><label className='label-info'>Rol: </label>{rolInText(props.rol)}</p>
+                                <p className="card-text"><label className='label-info'>Usuario: </label>{props.usuario}</p>
                                 <p className="card-text"><label className='label-info'>Correo: </label>{props.correo}</p>
                                 {
                                     props.estado === 1

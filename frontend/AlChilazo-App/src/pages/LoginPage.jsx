@@ -88,7 +88,7 @@ export const LoginPage = () => {
 							onChange={(e) => setPassword(e.target.value)} />
 					</div>
 
-					<button type="submit" className="btn btn-primary btn-sm">LogIn</button>
+					<button type="submit" className="btn btn-login btn-primary btn-sm">LogIn</button>
 				</form>
 			</div>
 		</>
