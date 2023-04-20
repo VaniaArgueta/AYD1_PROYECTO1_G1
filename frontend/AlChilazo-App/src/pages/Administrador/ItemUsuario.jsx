@@ -1,13 +1,11 @@
 import React from 'react';
 import './style.css';
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export const ItemUsuario = (props) => {
 
-    const navigate = useNavigate();
     const url = 'http://localhost:4000/cambiarEstadoUsuario';
-    console.log(props)
+    //console.log(props)
 
     function changeStatus(id, status) {
         console.log("id: " + id + ", status: " + status);
@@ -35,9 +33,9 @@ export const ItemUsuario = (props) => {
                         </div>
                         <div className="col-6">
                             <div className="card-body">
-                                <h5 className="card-title">{props.nombre + ' ' + props.apellido}</h5>
-                                <p className="card-text">{props.usuario}</p>
-                                <p className="card-text">{props.correo}</p>
+                                <p className="card-text"><label className='label-info'>Nombres: </label>{props.nombre + ' ' + props.apellido}</p>
+                                <p className="card-text"><label className='label-info'>Rol: </label>{props.usuario}</p>
+                                <p className="card-text"><label className='label-info'>Correo: </label>{props.correo}</p>
                                 {
                                     props.estado === 1
                                         ? <p className="card-text" style={{ fontWeight: "bold", color: "green" }}>Activo</p>

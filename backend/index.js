@@ -1,5 +1,5 @@
 import express from 'express';
-import conn,{query} from "./conexion.js";
+import conn, { query } from "./conexion.js";
 import bodyParser from 'body-parser';
 import cors from "cors";
 import dotenv from 'dotenv';
@@ -13,15 +13,15 @@ const app = express();
 var corsOptions = { origin: true, optionsSuccessStatus: 200 };
 app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json({limit: '1000mb'}));
+app.use(bodyParser.json({ limit: '1000mb' }));
 
 app.get("/", function (req, res) {
   res.send("Bienvenido a Proyecto 1 AlChilazo's NodeJs server")
 });
 
 // -----------------------------------------------REGISTRO REPARTIDOR-----------------------------------------------------------------------
-app.post('/registroRepartidor', async function(req,res){
-  const {usuario,
+app.post('/registroRepartidor', async function (req, res) {
+  const { usuario,
     nombre1,
     nombre2,
     apellido1,
@@ -39,35 +39,35 @@ app.post('/registroRepartidor', async function(req,res){
     id,
     fileContent,
     departamento,
-    ciudad} = req.body
+    ciudad } = req.body
 
   const idUsuario = await query({
-    sql:`SELECT idUsuario AS id FROM usuario2 WHERE usuario="${usuario}"`
+    sql: `SELECT idUsuario AS id FROM usuario2 WHERE usuario="${usuario}"`
   })
-  if(idUsuario.length>0){
-    return res.send({agregado:false,error:"Ya existe un usuario registrado con el username utilizado"})
+  if (idUsuario.length > 0) {
+    return res.send({ agregado: false, error: "Ya existe un usuario registrado con el username utilizado" })
   }
 
   const repartidorExiste = await query({
-    sql:`SELECT idRepartidor FROM Repartidor WHERE RepNom1="${nombre1}" AND RepNom2="${nombre2}" AND 
+    sql: `SELECT idRepartidor FROM Repartidor WHERE RepNom1="${nombre1}" AND RepNom2="${nombre2}" AND 
     RepApe1 ="${apellido1}" AND RepApe2 ="${apellido2}"`
   })
-  if(repartidorExiste.length>0){
-    return res.send({agregado:false,error:"Ya existe un repartidor registrado con ese nombre"})
+  if (repartidorExiste.length > 0) {
+    return res.send({ agregado: false, error: "Ya existe un repartidor registrado con ese nombre" })
   }
 
   const idDepartamento = await query({
-    sql:`SELECT idDepto as id FROM Departamento WHERE DeptoDsc = "${departamento}"`
+    sql: `SELECT idDepto as id FROM Departamento WHERE DeptoDsc = "${departamento}"`
   })
 
   const idCiudad = await query({
-    sql:`SELECT idCiudad as id FROM Ciudad WHERE CiudadDsc = "${ciudad}"`
+    sql: `SELECT idCiudad as id FROM Ciudad WHERE CiudadDsc = "${ciudad}"`
   })
 
-  const url = await saveFilePDF(id+Date.now().toString(), fileContent);
+  const url = await saveFilePDF(id + Date.now().toString(), fileContent);
   //Se inserta el repartidor en la tabla repartidor y en la tabla usuario
   let propio = 0;
-  if (hasTransporte){
+  if (hasTransporte) {
     propio = 1;
   };
   let pass = md5(password)
@@ -76,53 +76,60 @@ app.post('/registroRepartidor', async function(req,res){
   const fecha = fechaNacimiento;
   const fechaFormateada = format(new Date(fecha), "yyyy/MM/dd");
   console.log(fechaFormateada); // "2023/04/12"
+
   await query({
-    sql:`INSERT INTO Repartidor(idCiudad,idDepto,idPais,RepNom1,RepNom2,RepApe1,RepApe2,RepFecEstatus,RepFecNac,RepNumCel,RepCorrElect,
-    RepCV, RepTransProp,RepEst) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-    params:[idCiudad[0].id,idDepartamento[0].id,1,nombre1,nombre2,apellido1,apellido2,0,fechaFormateada,telefono,email,url.Location,propio,0]
+    sql: `INSERT INTO usuario2(usuario,nombre,apellido,email,password,estado,rol) VALUES(?,?,?,?,?,?,?)`,
+    params: [usuario, nombre1 + ' ' + nombre2, apellido1 + ' ' + apellido2, email, pass, 2, 1]
   })
+
+  const idusuario = await query({
+    sql: `SELECT idUsuario AS id FROM usuario2 WHERE usuario="${usuario}"`
+  })
+
   await query({
-    sql:`INSERT INTO usuario2(usuario,nombre,apellido,email,password,estado,rol) VALUES(?,?,?,?,?,?,?)`,
-    params:[usuario,nombre1+' '+nombre2,apellido1+' '+apellido2,email,pass,0,1]
+    sql: `INSERT INTO Repartidor(idCiudad,idDepto,idPais,RepNom1,RepNom2,RepApe1,RepApe2,RepFecEstatus,RepFecNac,RepNumCel,RepCorrElect,
+    RepCV, RepTransProp,RepEst,idUsuario) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+    params: [idCiudad[0].id, idDepartamento[0].id, 1, nombre1, nombre2, apellido1, apellido2, 0, fechaFormateada, telefono, email, url.Location, propio, 2, idusuario]
   })
+
   const idRepartidor = await query({
-    sql:`SELECT idRepartidor FROM Repartidor WHERE RepNom1="${nombre1}" AND RepNom2="${nombre2}" AND 
+    sql: `SELECT idRepartidor FROM Repartidor WHERE RepNom1="${nombre1}" AND RepNom2="${nombre2}" AND 
     RepApe1 ="${apellido1}" AND RepApe2 ="${apellido2}"`
   })
   console.log(idRepartidor)
-  if (hasLicense){
+  if (hasLicense) {
     const fecha1 = fechaVencimiento;
     const fechaFormateada1 = format(new Date(fecha1), "yyyy/MM/dd");
     await query({
-      sql:`INSERT INTO RepLicencia(idRepartidor,idCiudad,idDepto,idPais,RepNumLic,RepTipoLic,RepFecExpLic) VALUES(?,?,?,?,?,?,?)`,
-      params:[idRepartidor[0].idRepartidor,idCiudad[0].id,idDepartamento[0].id,1,noLicencia,licenseType,fechaFormateada1]
+      sql: `INSERT INTO RepLicencia(idRepartidor,idCiudad,idDepto,idPais,RepNumLic,RepTipoLic,RepFecExpLic) VALUES(?,?,?,?,?,?,?)`,
+      params: [idRepartidor[0].idRepartidor, idCiudad[0].id, idDepartamento[0].id, 1, noLicencia, licenseType, fechaFormateada1]
     })
   }
-  if (hasTransporte){
+  if (hasTransporte) {
     await query({
-      sql:`INSERT INTO RepVehiculo(VehPlacaNum,VehTipPlaca,idRepartidor,idCiudad,idDepto,idPais,RepVehiculoEst) VALUES(?,?,?,?,?,?,?)`,
-      params:[noPlaca,"M",idRepartidor[0].idRepartidor,idCiudad[0].id,idDepartamento[0].id,1,1]
+      sql: `INSERT INTO RepVehiculo(VehPlacaNum,VehTipPlaca,idRepartidor,idCiudad,idDepto,idPais,RepVehiculoEst) VALUES(?,?,?,?,?,?,?)`,
+      params: [noPlaca, "M", idRepartidor[0].idRepartidor, idCiudad[0].id, idDepartamento[0].id, 1, 1]
     })
   }
-  return res.send({agregado:true,error:""})
+  return res.send({ agregado: true, error: "" })
 });
 
-app.get('/ciudades/(:departamento)', async function(req,res){
-  const {departamento} = req.params
+app.get('/ciudades/(:departamento)', async function (req, res) {
+  const { departamento } = req.params
   const idDepartamento = await query({
-    sql:`SELECT idDepto as id FROM Departamento WHERE DeptoDsc = "${departamento}"`
+    sql: `SELECT idDepto as id FROM Departamento WHERE DeptoDsc = "${departamento}"`
   })
-  if(idDepartamento.length<0) return res.send([])
+  if (idDepartamento.length < 0) return res.send([])
   const ciudades = await query({
-    sql:`SELECT CiudadDsc as ciudad FROM Ciudad WHERE IdDepto="${idDepartamento[0].id}"`
+    sql: `SELECT CiudadDsc as ciudad FROM Ciudad WHERE IdDepto="${idDepartamento[0].id}"`
   })
   //console.log(ciudades)
   return res.send(ciudades)
 })
 
-app.get('/departamentos',async function(req,res){
+app.get('/departamentos', async function (req, res) {
   const departamentos = await query({
-    sql:`SELECT DeptoDsc as departamento FROM Departamento`
+    sql: `SELECT DeptoDsc as departamento FROM Departamento`
   })
   //console.log(departamentos)
   return res.send(departamentos)
@@ -130,7 +137,7 @@ app.get('/departamentos',async function(req,res){
 // -----------------------------------------------REGISTRO REPARTIDOR -----------------------------------------------------------------------//
 
 // -----------------------------------------------START S3 SAVE IMAGE-----------------------------------------------------------------------
-app.post('/prueba', async function(req, res) {
+app.post('/prueba', async function (req, res) {
   const body = req.body;
   console.log(body.id);
   console.log(body.fileContent);
@@ -164,7 +171,7 @@ const saveFilePDF = async (id, base64String) => {
 
 
 // -----------------------------------------------START S3 SAVE IMAGE-----------------------------------------------------------------------
-const saveImagePedido = async (id, base64) =>{
+const saveImagePedido = async (id, base64) => {
   var id = id
   var foto = base64
   //carpeta y nombre que quieran darle a la imagen
@@ -189,303 +196,345 @@ const saveImagePedido = async (id, base64) =>{
 
 // -----------------------------------------------LOGIN----------------------------------------------------
 app.get('/mostrarUsuarios', function (req, res) {
-    conn.query('SELECT * FROM usuario2',
-      function (err, results, fields) {
-        if (err) throw err;
-        else console.log('Selected ' + results.length + ' row(s).');
-  
-        res.send(results)
-        console.log('Done.');
-      })
-  });
-  
-  
-  app.get("/login/(:usuario)/(:password)", function (req, res) {
-        let usuario = req.params.usuario;
-        let password = req.params.password;
-    
-        console.log(usuario);
-        console.log(password);
-    
-        /* Códigos de respuesta:
-         * 0: no existe usuario
-         * 1: login correcto
-         * -1: error inesperado o datos incorrectos
-         * -2: contraseña incorrecta
-         *  3: inactivo
-         */
-        //console.log('prueba '+md5(passwordRequest));
-        conn.query("SELECT * FROM usuario2 where usuario = ?",[usuario], function (err, results, fields) {
-            if (err) throw err;
-            else {
-              console.log("Selected " + results.length + " row(s).");   
-              if(results.length === 0){
-                console.log('No existe el usuario');
-                return res.send({ resultadoLogin: 0 });
-              }
-              else if(results.length === 1){
-                if(results[0].estado === 0){
-                  console.log('Usuario inactivo');
-                  return res.send({ resultadoLogin: 3 }); // 3 usuario inactivo           
-                }
-
-                password = md5(password);
-                console.log('password ingresada (después de encriptación):'+password)
-                if(results[0].password == password) {
-                  console.log('login exitoso');
-                  return res.send({ resultadoLogin: 1 });
-                }
-                else {
-                  console.log('contraseña incorrecta');
-                  return res.send({ resultadoLogin: -2 }); // -2 código de contraseña incorrecta           
-                }
-    
-              }else {
-                console.log('error inesperado o datos incorrectos');
-                return res.send({ resultadoLogin: -1 });
-              }
-              //res.send((results));
-              //console.log(results);
-            }
-          });
-        
-  });
-  
-
-  
-  // -----------------------------------------------REGISTRO-----------------------------------------------------------------------
-  
-  app.get("/consultarUsuario/(:usuario)", function (req, res) { // Consulta información usuario
-    let usuario = req.params.usuario;
-    conn.query("SELECT * FROM usuario2 where usuario = ? ", [usuario], function (err, results, fields) {
+  conn.query('SELECT * FROM usuario2',
+    function (err, results, fields) {
       if (err) throw err;
-      else console.log("Selected " + results.length + " row(s).");
-      res.send((results));
-    });
-  });
-  
-  app.get("/consultarExistenciaUsuario/(:usuario)", function (req, res) { // Consulta cantidad de usuarios con nombre :usuario
-    let usuario = req.params.usuario;
-    conn.query("SELECT * FROM usuario2 where usuario = ? ", [usuario], function (err, results, fields) {
-      if (err) throw err;
-      else console.log("Selected " + results.length + " row(s).");
-      res.send({ cantidad: results.length });
-    });
-  
-  });
-  
-  /** ROLES
-   * 0: Administrador
-   * 1: Repartidor
-   * 2: Usuario
-   * 3: Empresa
+      else console.log('Selected ' + results.length + ' row(s).');
+
+      res.send(results)
+      console.log('Done.');
+    })
+});
+
+
+app.get("/login/(:usuario)/(:password)", function (req, res) {
+  let usuario = req.params.usuario;
+  let password = req.params.password;
+
+  console.log(usuario);
+  console.log(password);
+
+  /* Códigos de respuesta:
+   * 0: no existe usuario
+   * 1: login correcto
+   * -1: error inesperado o datos incorrectos
+   * -2: contraseña incorrecta
+   *  3: inactivo
    */
-  
-  app.post("/registro", function (req, res) {
-      let usuario = req.body.usuario;
-      let nombre = req.body.nombre;
-      let apellido = req.body.apellido;
-      let email = req.body.email;  
-      let rol = req.body.rol;  
-      //let password = req.body.password;
-      //let rol = req.body.rol;
-      let password = md5(req.body.password);
-  
-    conn.query(
-      "insert into usuario2(usuario, nombre, apellido, email, password, rol) VALUES (?,?,?,?,?,?);",
-      [usuario, nombre, apellido, email, password, rol], // ROl: 0 ->administrador, 1 ->repartidor, 2->usuario (consumidor), 3->empresa
-      function (err, results, fields) {
-        if (err) {
-          console.log(err);
-          return res.send({ insertarUsuario: false });
-        } else {
-          console.log("Inserted " + results.affectedRows + " row(s).");
-          return res.send({ insertarUsuario: true });
-        }
+  //console.log('prueba '+md5(passwordRequest));
+  conn.query("SELECT * FROM usuario2 where usuario = ?", [usuario], function (err, results, fields) {
+    if (err) throw err;
+    else {
+      console.log("Selected " + results.length + " row(s).");
+      if (results.length === 0) {
+        console.log('No existe el usuario');
+        return res.send({ resultadoLogin: 0 });
       }
-    );
+      else if (results.length === 1) {
+        if (results[0].estado === 0) {
+          console.log('Usuario inactivo');
+          return res.send({ resultadoLogin: 3 }); // 3 usuario inactivo           
+        }
+
+        password = md5(password);
+        console.log('password ingresada (después de encriptación):' + password)
+        if (results[0].password == password) {
+          console.log('login exitoso');
+          return res.send({ resultadoLogin: 1 });
+        }
+        else {
+          console.log('contraseña incorrecta');
+          return res.send({ resultadoLogin: -2 }); // -2 código de contraseña incorrecta           
+        }
+
+      } else {
+        console.log('error inesperado o datos incorrectos');
+        return res.send({ resultadoLogin: -1 });
+      }
+      //res.send((results));
+      //console.log(results);
+    }
   });
 
+});
 
-  app.post('/resgistroEmpresa', async function(req,res){
-    const {usuario,nombre,nit,email,password,categoria,pdfFile,departamento,ciudad,descripcion} = req.body
-    const pdfUrls = []
-    let pdfUrl = ""
-    let pass = md5(password);
 
-    const idUsuario = await query({
-      sql:`SELECT idUsuario AS id FROM usuario2 WHERE usuario="${usuario}"`
-    })
-    if(idUsuario.length>0){
-      return res.send({agregado:false,error:"Ya existe un usuario registrado con el username utilizado"})
+
+// -----------------------------------------------REGISTRO-----------------------------------------------------------------------
+
+app.get("/consultarUsuario/(:usuario)", function (req, res) { // Consulta información usuario
+  let usuario = req.params.usuario;
+  conn.query("SELECT * FROM usuario2 where usuario = ? ", [usuario], function (err, results, fields) {
+    if (err) throw err;
+    else console.log("Selected " + results.length + " row(s).");
+    res.send((results));
+  });
+});
+
+app.get("/consultarExistenciaUsuario/(:usuario)", function (req, res) { // Consulta cantidad de usuarios con nombre :usuario
+  let usuario = req.params.usuario;
+  conn.query("SELECT * FROM usuario2 where usuario = ? ", [usuario], function (err, results, fields) {
+    if (err) throw err;
+    else console.log("Selected " + results.length + " row(s).");
+    res.send({ cantidad: results.length });
+  });
+
+});
+
+/** ROLES
+ * 0: Administrador
+ * 1: Repartidor
+ * 2: Usuario
+ * 3: Empresa
+ */
+
+app.post("/registro", function (req, res) {
+  let usuario = req.body.usuario;
+  let nombre = req.body.nombre;
+  let apellido = req.body.apellido;
+  let email = req.body.email;
+  let rol = req.body.rol;
+  //let password = req.body.password;
+  //let rol = req.body.rol;
+  let password = md5(req.body.password);
+
+  conn.query(
+    "insert into usuario2(usuario, nombre, apellido, email, password, rol) VALUES (?,?,?,?,?,?);",
+    [usuario, nombre, apellido, email, password, rol], // ROl: 0 ->administrador, 1 ->repartidor, 2->usuario (consumidor), 3->empresa
+    function (err, results, fields) {
+      if (err) {
+        console.log(err);
+        return res.send({ insertarUsuario: false });
+      } else {
+        console.log("Inserted " + results.affectedRows + " row(s).");
+        return res.send({ insertarUsuario: true });
+      }
     }
-
-    const empresaExiste = await query({
-      sql:`SELECT idEmpresa FROM Empresa WHERE EmpNombre="${nombre}"`
-    })
-    if(empresaExiste.length>0){
-      return res.send({agregado:false,error:"Ya existe una empresa registrada con ese nombre"})
-    }
-
-    const idTipoDoc = await query({
-      sql:`SELECT idTipDoc AS id FROM TipoDocu WHERE TipDocDsc="PDF"`
-    })
-    if(idTipoDoc.length===0) return res.send({agregado:false,error:"Error al seleccionar categoria de archivo PDF"})
+  );
+});
 
 
-    const idDepartamento = await query({
-      sql:`SELECT idDepto as id FROM Departamento WHERE DeptoDsc = "${departamento}"`
-    })
+app.post('/resgistroEmpresa', async function (req, res) {
+  const { usuario, nombre, nit, email, password, categoria, pdfFile, departamento, ciudad, descripcion } = req.body
+  const pdfUrls = []
+  let pdfUrl = ""
+  let pass = md5(password);
 
-    const idCiudad = await query({
-      sql:`SELECT idCiudad as id FROM Ciudad WHERE CiudadDsc = "${ciudad}"`
-    })
-
-    const idCategoria = await query({
-      sql:`SELECT idTipEmp as id FROM TipoEmpresa WHERE TipEmpDsc = "${categoria}"`
-    })
-
-    //Se inserta la empresa en la tabla empresa y en la tabla usuario
-    await query({
-      sql:`INSERT INTO Empresa(idTipEmp,idCiudad,idDepto,idPais,NIT,EmpNombre,EmpDsc,EmpEmail,EmpEst) VALUES(?,?,?,?,?,?,?,?,?)`,
-      params:[idCategoria[0].id,idCiudad[0].id,idDepartamento[0].id,1,nit,nombre,descripcion,email,0]
-    })
-    await query({
-      sql:`INSERT INTO usuario2(usuario,nombre,apellido,email,password,estado,rol) VALUES(?,?,?,?,?,?,?)`,
-      params:[usuario,nombre,nombre,email,pass,0,3]
-    })
-
-    const idEmpresa = await query({
-      sql:`SELECT idEmpresa AS id FROM Empresa WHERE EmpNombre="${nombre}"`
-    })
-
-    for(let pdf of pdfFile){
-      pdfUrl = await saveFilePDF(pdf.pdfName+Date.now().toString()+".pdf",pdf.pdfContent)
-      pdfUrls.push(pdfUrl.Location)
-      query({
-        sql:`INSERT INTO empDocs(idTipDoc,idEmpresa,idTipEmp,idCiudad,idDepto,idPais,Docu,DocFecCarga) VALUES(?,?,?,?,?,?,?,sysdate())`,
-        params:[idTipoDoc[0].id,idEmpresa[0].id,idCategoria[0].id,idCiudad[0].id,idDepartamento[0].id,1,pdfUrl.Location]
-      })
-    }
-    console.log(pdfUrls)
-    return res.send({agregado:true,error:""})
+  const idUsuario = await query({
+    sql: `SELECT idUsuario AS id FROM usuario2 WHERE usuario="${usuario}"`
   })
+  if (idUsuario.length > 0) {
+    return res.send({ agregado: false, error: "Ya existe un usuario registrado con el username utilizado" })
+  }
+
+  const empresaExiste = await query({
+    sql: `SELECT idEmpresa FROM Empresa WHERE EmpNombre="${nombre}"`
+  })
+  if (empresaExiste.length > 0) {
+    return res.send({ agregado: false, error: "Ya existe una empresa registrada con ese nombre" })
+  }
+
+  const idTipoDoc = await query({
+    sql: `SELECT idTipDoc AS id FROM TipoDocu WHERE TipDocDsc="PDF"`
+  })
+  if (idTipoDoc.length === 0) return res.send({ agregado: false, error: "Error al seleccionar categoria de archivo PDF" })
+
+
+  const idDepartamento = await query({
+    sql: `SELECT idDepto as id FROM Departamento WHERE DeptoDsc = "${departamento}"`
+  })
+
+  const idCiudad = await query({
+    sql: `SELECT idCiudad as id FROM Ciudad WHERE CiudadDsc = "${ciudad}"`
+  })
+
+  const idCategoria = await query({
+    sql: `SELECT idTipEmp as id FROM TipoEmpresa WHERE TipEmpDsc = "${categoria}"`
+  })
+
+  //Se inserta la empresa en la tabla empresa y en la tabla usuario
+  await query({
+    sql: `INSERT INTO usuario2(usuario,nombre,apellido,email,password,estado,rol) VALUES(?,?,?,?,?,?,?)`,
+    params: [usuario, nombre, nombre, email, pass, 2, 3]
+  })
+
+  const idusuario = await query({
+    sql: `SELECT idUsuario AS id FROM usuario2 WHERE usuario="${usuario}"`
+  })
+
+  await query({
+    sql: `INSERT INTO Empresa(idTipEmp,idCiudad,idDepto,idPais,NIT,EmpNombre,EmpDsc,EmpEmail,EmpEst,idUsuario) VALUES(?,?,?,?,?,?,?,?,?,?)`,
+    params: [idCategoria[0].id, idCiudad[0].id, idDepartamento[0].id, 1, nit, nombre, descripcion, email, 2, idusuario]
+  })
+
+  const idEmpresa = await query({
+    sql: `SELECT idEmpresa AS id FROM Empresa WHERE EmpNombre="${nombre}"`
+  })
+
+  for (let pdf of pdfFile) {
+    pdfUrl = await saveFilePDF(pdf.pdfName + Date.now().toString() + ".pdf", pdf.pdfContent)
+    pdfUrls.push(pdfUrl.Location)
+    query({
+      sql: `INSERT INTO empDocs(idTipDoc,idEmpresa,idTipEmp,idCiudad,idDepto,idPais,Docu,DocFecCarga) VALUES(?,?,?,?,?,?,?,sysdate())`,
+      params: [idTipoDoc[0].id, idEmpresa[0].id, idCategoria[0].id, idCiudad[0].id, idDepartamento[0].id, 1, pdfUrl.Location]
+    })
+  }
+  console.log(pdfUrls)
+  return res.send({ agregado: true, error: "" })
+})
 
 //------------------------------- PERFIL ADMINISTRADOR-----------------------------
 
-app.get('/listaUsuarios',function(req,res){
-  conn.query('SELECT * FROM usuario2', 
-      function (err, results, fields) {
-          if (err) throw err;
-          else console.log('Selected ' + results.length + ' row(s).');
+app.get('/listaUsuarios', function (req, res) {
+  conn.query('SELECT * FROM usuario2 where estado in (0,1)',
+    function (err, results, fields) {
+      if (err) throw err;
+      else console.log('Selected ' + results.length + ' row(s).');
 
-          res.send(results)
-          console.log('Done.');
-      })
+      res.send(results)
+      console.log('Done.');
+    })
 });
 
-app.post('/cambiarEstadoUsuario',function(req,res){
+app.post('/cambiarEstadoUsuario', function (req, res) {
   let estado = req.body.estado;
   let idUsuario = req.body.idUsuario;
 
-  conn.query('UPDATE usuario2 SET estado = ? WHERE idUsuario = ?;', [estado,idUsuario],
-  function (err, results, fields) {
-      if (err){
-          console.log(err)
-          return res.send({ "actualizado": false })
+  conn.query('UPDATE usuario2 SET estado = ? WHERE idUsuario = ?;', [estado, idUsuario],
+    function (err, results, fields) {
+      if (err) {
+        console.log(err)
+        return res.send({ "actualizado": false })
       }
-      else{
-           console.log('Se actualiza ' + results.affectedRows + ' usuario(s).');
-           return res.send({ "actualizado": true })
+      else {
+        console.log('Se actualiza ' + results.affectedRows + ' usuario(s).');
+        return res.send({ "actualizado": true })
       }
- });
+    });
+});
+
+app.get('/solicitudesRepartidor', function (req, res) {
+  conn.query('select rep.*, (select Pais from Pais where idPais = rep.idPais) as pais, (select Pais from Departamento where idDepto = rep.idDepto) as departamento, (select Pais from Ciudad where idCiudad = rep.idCiudad) as ciudad from Repartidor rep where RepEst = 2',
+    function (err, results, fields) {
+      if (err) throw err;
+      else console.log('Selected ' + results.length + ' row(s).');
+
+      res.send(results)
+      console.log('Done.');
+    })
+});
+
+app.post('/aprobarSolicitud', async function (req, res) {
+  let estado = req.body.estado;
+  let idUsuario = req.body.idUsuario;
+  let idSolicitud = req.body.idSolicitud;
+  let tipo = req.body.tipo;
+
+  await query({
+    sql: `UPDATE usuario2 SET estado = ? WHERE idUsuario = ?;`,
+    params: [estado, idUsuario]
+  })
+
+  if (tipo == 1) {
+    await query({
+      sql: `UPDATE Repartidor SET RepEst = ?, RepFecEstAlta = sysdate() WHERE idRepartidor = ?;`,
+      params: [estado, idSolicitud]
+    })
+
+  } else {
+    await query({
+      sql: `UPDATE Empresa SET EmpEst = ? ,EmpFecAlta = sysdate() WHERE idEmpresa = ?;`,
+      params: [estado, idSolicitud]
+    })
+  }
+  return res.send({ "actualizado": true })
 });
 
 //-----------------------------FIN PERFIL ADMIN------------------------------------
 
 
 //---------------------------------EMPRESAS----------------------------------------
-app.post('/agregarProducto', async function(req,res){
-    let {nombre,categoria,precio,picture,empresaName} = req.body
-    picture = await (await saveImagePedido(Date.now().toString()+".png",picture)).Location
+app.post('/agregarProducto', async function (req, res) {
+  let { nombre, categoria, precio, picture, empresaName } = req.body
+  picture = await (await saveImagePedido(Date.now().toString() + ".png", picture)).Location
 
-    categoria = categoria.toUpperCase()
-    
-    let idCategoria = await query({
-      sql:`SELECT idCateProd AS idCategoria FROM CateProd WHERE CataProdDsc ="${categoria}"`
+  categoria = categoria.toUpperCase()
+
+  let idCategoria = await query({
+    sql: `SELECT idCateProd AS idCategoria FROM CateProd WHERE CataProdDsc ="${categoria}"`
+  })
+
+  if (!idCategoria.length) {
+    await query({
+      sql: `INSERT INTO CateProd(CataProdDsc) VALUES("${categoria}")`
     })
-
-    if(!idCategoria.length){
-      await query({
-        sql:`INSERT INTO CateProd(CataProdDsc) VALUES("${categoria}")`
-      })
-      idCategoria = await query({
-        sql:`SELECT idCateProd AS idCategoria FROM CateProd WHERE CataProdDsc ="${categoria}"`
-      })
-    }
-
-    let empresa = await query({
-      sql:`SELECT * FROM Empresa e, usuario2 u WHERE u.usuario="${empresaName}" AND u.rol=3 AND e.EmpNombre = u.nombre`
+    idCategoria = await query({
+      sql: `SELECT idCateProd AS idCategoria FROM CateProd WHERE CataProdDsc ="${categoria}"`
     })
-    console.log(empresa)
-    console.log(empresaName)
-    if(!empresa.length){ 
-      return res.send({ "agregado": false })
-    }
-    
-    let {idEmpresa,idTipEmp,idCiudad,idDepto,idPais} = empresa[0]
+  }
 
-    query({
-      sql:`INSERT INTO EmpProd(idEmpresa,idTipEmp,idCiudad,idDepto,idPais,idCateProd,ProdDsc,ProdImg,precio) VALUES(?,?,?,?,?,?,?,?,?)`,
-      params:[idEmpresa,idTipEmp,idCiudad,idDepto,idPais,idCategoria[0].idCategoria,nombre,picture,precio]
-    })
+  let empresa = await query({
+    sql: `SELECT * FROM Empresa e, usuario2 u WHERE u.usuario="${empresaName}" AND u.rol=3 AND e.EmpNombre = u.nombre`
+  })
+  console.log(empresa)
+  console.log(empresaName)
+  if (!empresa.length) {
+    return res.send({ "agregado": false })
+  }
 
-    return res.send({ "agregado": true })
+  let { idEmpresa, idTipEmp, idCiudad, idDepto, idPais } = empresa[0]
+
+  query({
+    sql: `INSERT INTO EmpProd(idEmpresa,idTipEmp,idCiudad,idDepto,idPais,idCateProd,ProdDsc,ProdImg,precio) VALUES(?,?,?,?,?,?,?,?,?)`,
+    params: [idEmpresa, idTipEmp, idCiudad, idDepto, idPais, idCategoria[0].idCategoria, nombre, picture, precio]
+  })
+
+  return res.send({ "agregado": true })
 })
 
-app.get('/catalogoProductos/(:userEmpresa)', async (req,res)=>{
-  const {userEmpresa} = req.params
+app.get('/catalogoProductos/(:userEmpresa)', async (req, res) => {
+  const { userEmpresa } = req.params
   const catalogo = []
-  const consulta =`SELECT e.idEmpresa FROM Empresa e, usuario2 u WHERE u.usuario="${userEmpresa}" AND u.rol=3 AND e.EmpNombre = u.nombre`
+  const consulta = `SELECT e.idEmpresa FROM Empresa e, usuario2 u WHERE u.usuario="${userEmpresa}" AND u.rol=3 AND e.EmpNombre = u.nombre`
   console.log(consulta)
   const idEmpresa = await query({
-    sql:`SELECT e.idEmpresa AS id FROM Empresa e, usuario2 u WHERE u.usuario="${userEmpresa}" AND u.rol=3 AND e.EmpNombre = u.nombre`
+    sql: `SELECT e.idEmpresa AS id FROM Empresa e, usuario2 u WHERE u.usuario="${userEmpresa}" AND u.rol=3 AND e.EmpNombre = u.nombre`
   })
   console.log(idEmpresa)
 
   const categorias = await query({
-    sql:`SELECT * FROM CateProd`
+    sql: `SELECT * FROM CateProd`
   })
-  
-  for(let categoria of categorias){
+
+  for (let categoria of categorias) {
     console.log(`SELECT * FROM EmpProd WHERE idEmpresa=${idEmpresa[0].id} AND idCateProd="${categoria.idCateProd}"`)
     const productos = await query({
-      sql:`SELECT * FROM EmpProd WHERE idEmpresa=${idEmpresa[0].id} AND idCateProd="${categoria.idCateProd}"`
+      sql: `SELECT * FROM EmpProd WHERE idEmpresa=${idEmpresa[0].id} AND idCateProd="${categoria.idCateProd}"`
     })
-    catalogo.push({categoria,productos})
+    catalogo.push({ categoria, productos })
   }
-  
-  res.send({productos:catalogo,error:""})
+
+  res.send({ productos: catalogo, error: "" })
 
 })
 
 
-app.get('/ciudades/(:departamento)', async function(req,res){
-  const {departamento} = req.params
+app.get('/ciudades/(:departamento)', async function (req, res) {
+  const { departamento } = req.params
   const idDepartamento = await query({
-    sql:`SELECT idDepto as id FROM Departamento WHERE DeptoDsc = "${departamento}"`
+    sql: `SELECT idDepto as id FROM Departamento WHERE DeptoDsc = "${departamento}"`
   })
-  if(idDepartamento.length<0) return res.send([])
+  if (idDepartamento.length < 0) return res.send([])
   const ciudades = await query({
-    sql:`SELECT CiudadDsc as ciudad FROM Ciudad WHERE IdDepto="${idDepartamento[0].id}"`
+    sql: `SELECT CiudadDsc as ciudad FROM Ciudad WHERE IdDepto="${idDepartamento[0].id}"`
   })
   //console.log(ciudades)
   return res.send(ciudades)
 })
 
-app.get('/departamentos',async function(req,res){
+app.get('/departamentos', async function (req, res) {
   const departamentos = await query({
-    sql:`SELECT DeptoDsc as departamento FROM Departamento`
+    sql: `SELECT DeptoDsc as departamento FROM Departamento`
   })
   //console.log(departamentos)
   return res.send(departamentos)
@@ -496,4 +545,3 @@ app.get('/departamentos',async function(req,res){
 
 app.listen(4000);
 console.log("Server running on port 4000");
-  
