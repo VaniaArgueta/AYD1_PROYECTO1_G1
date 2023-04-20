@@ -22,11 +22,43 @@ app.get("/", function (req, res) {
 // -----------------------------------------------PERFIL REPARTIDOR-----------------------------------------------------------------------
 
 app.post('/Informacion',async function(req,res){
-  const departamentos = await query({
-    sql:`SELECT DeptoDsc as departamento FROM Departamento`
+  const {idusuario
+    } = req.body
+  const datosRepartidor = await query({
+    sql:`SELECT * FROM Repartidor WHERE idUsuario="${idusuario}"`
   })
-  //console.log(departamentos)
-  return res.send(departamentos)
+  const NombreDepartamento = await query({
+    sql:`SELECT DeptoDsc as name FROM Departamento WHERE idDepto = "${datosRepartidor[0].idDepto}"`
+  })
+
+  const NombreCiudad = await query({
+    sql:`SELECT CiudadDsc as name FROM Ciudad WHERE idCiudad = "${datosRepartidor[0].idCiudad}"`
+  })
+  const datosLicencia = await query({
+    sql:`SELECT * FROM RepLicencia WHERE idRepartidor = "${datosRepartidor[0].idRepartido}"`
+  })
+  const datosVehiculo = await query({
+    sql:`SELECT * FROM RepVehiculo WHERE idRepartidor = "${datosRepartidor[0].idRepartido}"`
+  })
+  console.log("datosRepartidor")
+  console.log(datosRepartidor)
+  console.log("NombreCiudad")
+  console.log(NombreCiudad)
+  console.log("NombreDepartamento")
+  console.log(NombreDepartamento)
+  console.log("datosLicencia")
+  console.log(datosLicencia)
+  console.log("datosVehiculo")
+  console.log(datosVehiculo)
+  const respuesta = {
+    idRepartidor: datosRepartidor[0].idRepartidor,
+    departamento: NombreDepartamento[0].name,
+    ciudad: NombreCiudad[0].name,
+    nacimiento: datosRepartidor[0].RepFecNac,
+    telefono: datosRepartidor[0].RepNumCel,
+
+  }
+  return res.send(respuesta)
 })
 
 // -----------------------------------------------FIN PERFIL REPARTIDOR -----------------------------------------------------------------------//

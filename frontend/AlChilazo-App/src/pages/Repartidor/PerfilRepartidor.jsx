@@ -5,8 +5,18 @@ import 'semantic-ui-css/semantic.min.css';
 import StarRating from "./StarRating";
 
 export const PerfilRepartidor = (props) => {
+  const url = "http://localhost:4000/Informacion";
+  console.log("props")
+  console.log(props)
+  console.log(props.datos.idUsuario)
   const [initialRating, setInitialRating] = useState(0);
   useEffect(() => {
+    const data = {
+      idusuario: props.datos.idUsuario
+    };
+    axios.post(url, data).then((response) => {
+      console.log(response.data);
+    });
     setInitialRating(3);
     console.log("initialRating useEffect")
     console.log(initialRating)
@@ -21,7 +31,7 @@ export const PerfilRepartidor = (props) => {
             <Grid.Column width={4}></Grid.Column>
             <Grid.Column width={10}>
               <Grid.Row>
-                
+
               </Grid.Row>
               <Grid.Row>
                 
