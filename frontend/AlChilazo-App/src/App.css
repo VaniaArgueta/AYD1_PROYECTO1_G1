@@ -84,7 +84,13 @@
 
 .btn {
   font-size:medium !important;
-  width: 70%;
+  width: 40%;
+}
+
+.btn-info {
+  font-size:medium !important;
+  width: 20%;
+  background-color: #ba3b46 !important;
 }
 
 .rowS {

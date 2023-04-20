@@ -17,7 +17,7 @@ export const DeshabilitarUsuarios = (props) => {
   }, []);
 
   function charge(item) {
-    console.log(item);
+    console.log(item)
     axios.get(url).then((response) => {
       setDatosAPI(response.data);
     });
