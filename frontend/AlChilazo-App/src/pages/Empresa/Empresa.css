@@ -54,3 +54,9 @@
 	display: flex;
 	margin-right: 2rem;
 }
+
+.products-card-button{
+	display: flex;
+	flex-direction: row;
+	justify-items: self-start;
+}

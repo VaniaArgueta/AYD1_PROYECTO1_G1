@@ -4,12 +4,11 @@ import Pagination from './Pagination';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 
-export const Productos = ({productos}) => {
+export const ProductosPanel = ({productos,setCatalogoUpdated,catalogoUpdated, setShowModal,setIdProductoEdit}) => {
 
 
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage,setItemsPerPage] = useState(3)
-
 
   const indexOfLastPost = currentPage * itemsPerPage;
   const indexOfFirstPost = indexOfLastPost - itemsPerPage;
@@ -32,6 +31,19 @@ export const Productos = ({productos}) => {
 		setCurrentPage(selected);
 	};
 
+  const deleteProduct = (product) =>{
+    console.log(product)
+    axios.delete(`http://localhost:4000/producto/${product.idProd}`)
+      .then(res=>{
+        alert("Se ha eliminado el producto correctamente")
+        setCatalogoUpdated(!catalogoUpdated)
+      })
+  }
+
+  const editProduct = (id) =>{
+    setShowModal(true)
+    setIdProductoEdit(id)
+  }
   
   
   return (
@@ -39,11 +51,14 @@ export const Productos = ({productos}) => {
         <div className='productos-catalogo'>      
             {currentItems.map(producto =>(
                 <Card key={producto.ProdDsc} style={{ width: '14rem',height:'18rem',marginRight:'2rem' }}>
-                    <Card.Img variant="top" src={producto.ProdImg} style={{width:'80%',height:'50%',objectFit:'contain'}}/>
+                    <Card.Img variant="top" src={producto.ProdImg} style={{width:'80%',height:'50%',objectFit:'contain',marginLeft:'10%'}}/>
                     <Card.Body>
                         <Card.Title>{producto.ProdDsc}</Card.Title>
                         <Card.Text>Precio: Q.{producto.precio}</Card.Text>
-
+                        <div className='products-card-button'>
+                          <Button variant='primary' onClick={()=>editProduct(producto.idProd)}>Editar</Button>
+                          <Button variant='danger' onClick={()=>deleteProduct(producto)}>Eliminar</Button>
+                        </div>
                     </Card.Body>
                 </Card>
                 /* <div key={producto.ProdDsc} className='card' style={{"width":"10rem"}}>
