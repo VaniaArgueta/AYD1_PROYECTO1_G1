@@ -26,6 +26,7 @@ import {OfertasYCombos} from './Empresa/OfertasYCombos';
 import {ReportesEmpresa} from './Empresa/ReportesEmpresa';
 import {InformeRestaurantes} from './Empresa/InformeRestaurantes';
 import AgregarProducto from './Empresa/AgregarProducto';
+import { ProductosPanel } from './Empresa/ProductosPanel';
 
 export const ModuloAcciones = (props) => {
   
@@ -59,11 +60,13 @@ export const ModuloAcciones = (props) => {
     case 13:
       return <HistorialPedidosUsuario />;
     case 14:
-      return <CatalogoProductos usuario={props.usuario} ></CatalogoProductos>
+      return <CatalogoProductos usuario={props.usuario} editar={false}></CatalogoProductos>
     case 15:
       return <PanelControl setTipo={props.setTipo} />;
     case 151:
       return <AgregarProducto usuario={props.usuario}/>;
+    case 152:
+      return <CatalogoProductos usuario={props.usuario} editar={true}></CatalogoProductos>
     case 16:
       return <Pedidos />;
     case 17:

@@ -364,7 +364,7 @@ app.post('/resgistroEmpresa', async function (req, res) {
 
   await query({
     sql: `INSERT INTO Empresa(idTipEmp,idCiudad,idDepto,idPais,NIT,EmpNombre,EmpDsc,EmpEmail,EmpEst,idUsuario) VALUES(?,?,?,?,?,?,?,?,?,?)`,
-    params: [idCategoria[0].id, idCiudad[0].id, idDepartamento[0].id, 1, nit, nombre, descripcion, email, 2, idusuario]
+    params: [idCategoria[0].id, idCiudad[0].id, idDepartamento[0].id, 1, nit, nombre, descripcion, email, 2, idusuario[0].id]
   })
 
   const idEmpresa = await query({
@@ -537,6 +537,64 @@ app.get('/catalogoProductos/(:userEmpresa)', async (req, res) => {
 
   res.send({ productos: catalogo, error: "" })
 
+})
+
+
+app.get('/producto/(:idProducto)',async function(req,res){
+  const {idProducto} = req.params
+  const producto = await query({
+    sql:`SELECT * FROM EmpProd WHERE IdProd=${idProducto}`
+  })
+  const categoria = await query({
+    sql: `SELECT CataProdDsc FROM CateProd WHERE idCateProd="${producto[0].idCateProd}"`
+  })
+  res.send({producto,categoria})
+})
+
+
+app.put('/producto', async function(req,res){
+  const {idProducto,nombreProducto,categoria,precio} = req.body
+  let {picture} = req.body
+  console.log(picture)
+  picture = picture === "" ? "": (await saveImagePedido(Date.now().toString() + ".png", picture)).Location
+
+  let idCategoria = await query({
+    sql: `SELECT idCateProd AS idCategoria FROM CateProd WHERE CataProdDsc ="${categoria}"`
+  })
+
+  if (!idCategoria.length) {
+    await query({
+      sql: `INSERT INTO CateProd(CataProdDsc) VALUES("${categoria}")`
+    })
+    idCategoria = await query({
+      sql: `SELECT idCateProd AS idCategoria FROM CateProd WHERE CataProdDsc ="${categoria}"`
+    })
+  }
+
+  if(!picture){
+    await query({
+      sql:`UPDATE EmpProd SET ProdDsc="${nombreProducto}", idCateProd=${idCategoria[0].idCategoria}, 
+           precio=${precio} WHERE idProd=${idProducto}`
+    })
+  }else{
+    await query({
+      sql:`UPDATE EmpProd SET ProdDsc="${nombreProducto}", idCateProd=${idCategoria[0].idCategoria}, 
+           ProdImg="${picture}",precio=${precio} WHERE idProd=${idProducto}`
+    })
+  }
+  
+
+  res.send({updated:true})
+
+})
+
+
+app.delete('/producto/(:idProducto)', async function(req,res){
+  const {idProducto} = req.params
+  await query({
+    sql:`DELETE FROM EmpProd WHERE IdProd=${idProducto}`
+  })
+  res.send({eliminado:true})
 })
 
 
