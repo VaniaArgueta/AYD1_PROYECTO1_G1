@@ -19,6 +19,106 @@ app.get("/", function (req, res) {
   res.send("Bienvenido a Proyecto 1 AlChilazo's NodeJs server")
 });
 
+// -----------------------------------------------SOLICITUD CAMBIO DE ZONA-----------------------------------------------------------------------
+app.post('/CambiodeZona', async function (req, res) {
+  const { usuario,
+    idRepartidor,
+    razonCambio,
+    departamento,
+    ciudad} = req.body
+
+  const idDepartamento = await query({
+    sql: `SELECT idDepto as id FROM Departamento WHERE DeptoDsc = "${departamento}"`
+  })
+
+  const idCiudad = await query({
+    sql: `SELECT idCiudad as id FROM Ciudad WHERE CiudadDsc = "${ciudad}"`
+  })
+  //Estados
+  //0 - Pendiente
+  //1 - Aceptado
+  //2 - Rechazado
+  
+  await query({
+    sql: `INSERT INTO CambioZona(idRepartidor,Razon,Estado,idDepartamento,idCiudad) VALUES(?,?,?,?,?)`,
+    params: [idRepartidor, razonCambio, 0, idDepartamento, idCiudad]
+  })
+  return res.send({ agregado: true, error: "" })
+});
+
+// -----------------------------------------------FIN SOLICITUD CAMBIO DE ZONA -----------------------------------------------------------------------//
+
+// -----------------------------------------------PERFIL REPARTIDOR-----------------------------------------------------------------------
+
+app.post('/Informacion',async function(req,res){
+  const {idusuario
+  } = req.body
+  const datosUsuario = await query({
+    sql:`SELECT * FROM usuario2 WHERE idUsuario="${idusuario}"`
+  })
+  const datosRepartidor = await query({
+    sql:`SELECT * FROM Repartidor WHERE idUsuario="${idusuario}"`
+  })
+  const NombreDepartamento = await query({
+    sql:`SELECT DeptoDsc as name FROM Departamento WHERE idDepto = "${datosRepartidor[0].idDepto}"`
+  })
+  const NombreCiudad = await query({
+    sql:`SELECT CiudadDsc as name FROM Ciudad WHERE idCiudad = "${datosRepartidor[0].idCiudad}"`
+  })
+  //Aqui falta ver lo de cuando el status este 
+  const DatosOrdenes = await query({
+    sql:`SELECT * FROM Orden WHERE idRepartidor = "${datosRepartidor[0].idRepartidor}" AND OrdSt = "1"`
+  })
+  let sumaCalificacion = 0;
+  let promedio = 0;
+  if ( DatosOrdenes.length > 0) {
+    for (let i = 0; i < DatosOrdenes.length; i++) {
+      const dato =  DatosOrdenes[i];
+      sumaCalificacion +=  dato.RepCalif
+    }
+    promedio = sumaCalificacion / datos.length;
+  } else {
+    console.log('El array está vacío.');
+  }
+
+  const fecha =  datosRepartidor[0].RepFecNac;
+  const fechaFormateada = format(new Date(fecha), "yyyy/MM/dd");
+  let respuesta = {
+    nombreCompleto: datosRepartidor[0].RepNom1 + " " +  datosRepartidor[0].RepNom2 + " " + datosRepartidor[0].RepApe1 + " " + datosRepartidor[0].RepApe2,
+    username: datosUsuario[0].usuario,
+    email: datosUsuario[0].email,
+    idRepartidor: datosRepartidor[0].idRepartidor,
+    departamento: NombreDepartamento[0].name,
+    ciudad: NombreCiudad[0].name,
+    nacimiento: fechaFormateada,
+    telefono: datosRepartidor[0].RepNumCel,
+    tieneLicencia: datosRepartidor[0].RepLicencia,
+    tieneTransProp: datosRepartidor[0].RepTransProp,
+    calificacion: promedio,
+  }
+  if (datosRepartidor[0].RepLicencia === 1){
+    const datosLicencia = await query({
+      sql:`SELECT * FROM RepLicencia WHERE idRepartidor = "${datosRepartidor[0].idRepartidor}"`
+    });
+    respuesta.numLic = datosLicencia[0].RepNumLic;
+    respuesta.tipoLic = datosLicencia[0].RepTipoLic;
+    const fecha1 = datosLicencia[0].RepFecExpLic;
+    const fechaFormateada1 = format(new Date(fecha1), "yyyy/MM/dd");
+    respuesta.expiracion = fechaFormateada1;
+  };
+  if (datosRepartidor[0].RepTransProp === 1){
+    const datosVehiculo = await query({
+      sql:`SELECT * FROM RepVehiculo WHERE idRepartidor = ${datosRepartidor[0].idRepartidor}`
+    });
+    respuesta.numPlaca = datosVehiculo[0].VehPlacaNum;
+    respuesta.tipoPlaca = datosVehiculo[0].VehTipPlaca;
+  };
+  console.log(respuesta)
+  return res.send(respuesta)
+})
+
+// -----------------------------------------------FIN PERFIL REPARTIDOR -----------------------------------------------------------------------//
+
 // -----------------------------------------------REGISTRO REPARTIDOR-----------------------------------------------------------------------
 app.post('/registroRepartidor', async function (req, res) {
   const { usuario,
@@ -70,11 +170,15 @@ app.post('/registroRepartidor', async function (req, res) {
   if (hasTransporte) {
     propio = 1;
   };
+  let lic = 0;
+  if (hasLicense){
+    lic = 1;
+  };
   let pass = md5(password)
   console.log(idCiudad)
   console.log(idDepartamento)
   const fecha = fechaNacimiento;
-  const fechaFormateada = format(new Date(fecha), "yyyy/MM/dd");
+  const fechaFormateada = format(new Date(fecha), "yyyy-MM-dd");
   console.log(fechaFormateada); // "2023/04/12"
 
   await query({
@@ -88,8 +192,8 @@ app.post('/registroRepartidor', async function (req, res) {
 
   await query({
     sql: `INSERT INTO Repartidor(idCiudad,idDepto,idPais,RepNom1,RepNom2,RepApe1,RepApe2,RepFecEstatus,RepFecNac,RepNumCel,RepCorrElect,
-    RepCV, RepTransProp,RepEst,idUsuario) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-    params: [idCiudad[0].id, idDepartamento[0].id, 1, nombre1, nombre2, apellido1, apellido2, 0, fechaFormateada, telefono, email, url.Location, propio, 2, idusuario]
+    RepCV, RepTransProp,RepEst,idUsuario,RepLicencia) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+    params: [idCiudad[0].id, idDepartamento[0].id, 1, nombre1, nombre2, apellido1, apellido2, 0, fechaFormateada, telefono, email, url.Location, propio, 2, idusuario[0].id, lic]
   })
 
   const idRepartidor = await query({
@@ -99,7 +203,7 @@ app.post('/registroRepartidor', async function (req, res) {
   console.log(idRepartidor)
   if (hasLicense) {
     const fecha1 = fechaVencimiento;
-    const fechaFormateada1 = format(new Date(fecha1), "yyyy/MM/dd");
+    const fechaFormateada1 = format(new Date(fecha1), "yyyy-MM-dd");
     await query({
       sql: `INSERT INTO RepLicencia(idRepartidor,idCiudad,idDepto,idPais,RepNumLic,RepTipoLic,RepFecExpLic) VALUES(?,?,?,?,?,?,?)`,
       params: [idRepartidor[0].idRepartidor, idCiudad[0].id, idDepartamento[0].id, 1, noLicencia, licenseType, fechaFormateada1]
@@ -114,27 +218,7 @@ app.post('/registroRepartidor', async function (req, res) {
   return res.send({ agregado: true, error: "" })
 });
 
-app.get('/ciudades/(:departamento)', async function (req, res) {
-  const { departamento } = req.params
-  const idDepartamento = await query({
-    sql: `SELECT idDepto as id FROM Departamento WHERE DeptoDsc = "${departamento}"`
-  })
-  if (idDepartamento.length < 0) return res.send([])
-  const ciudades = await query({
-    sql: `SELECT CiudadDsc as ciudad FROM Ciudad WHERE IdDepto="${idDepartamento[0].id}"`
-  })
-  //console.log(ciudades)
-  return res.send(ciudades)
-})
-
-app.get('/departamentos', async function (req, res) {
-  const departamentos = await query({
-    sql: `SELECT DeptoDsc as departamento FROM Departamento`
-  })
-  //console.log(departamentos)
-  return res.send(departamentos)
-})
-// -----------------------------------------------REGISTRO REPARTIDOR -----------------------------------------------------------------------//
+// -----------------------------------------------FIN REGISTRO REPARTIDOR -----------------------------------------------------------------------//
 
 // -----------------------------------------------START S3 SAVE IMAGE-----------------------------------------------------------------------
 app.post('/prueba', async function (req, res) {

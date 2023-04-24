@@ -46,7 +46,7 @@ export const ModuloAcciones = (props) => {
     case 6:
       return <PedidosAsignados />;
     case 7:
-      return <PerfilRepartidor />;
+      return <PerfilRepartidor datos={props}/>;
     case 8:
       return <HistorialPedidosRepartidor />;
     case 9:

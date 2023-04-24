@@ -39,7 +39,6 @@ export const Navbar = () => {
 						<Link to='/login'>Iniciar sesión</Link>
 						<Link to='/register'>Registrarse</Link>
 						<Link to='/registerEmpresa'>Registrar Empresa</Link>
-						<Link to='/prueba'>Prueba Carga PDF</Link>
 						<Link to='/regrepartidor'>Registar Repartidor</Link>
 					</nav>
 				)}

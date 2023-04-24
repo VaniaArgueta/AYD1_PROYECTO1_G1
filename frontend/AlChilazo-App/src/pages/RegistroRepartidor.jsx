@@ -104,14 +104,14 @@ export const RegistroRepartidor = () => {
         console.log(data);
         if (password == password2) {
             axios.post(url, data).then((response) => {
-            console.log(response.data);
-            if(!response.data.agregado){
-                alert(response.data.error)
-            }else{
-                alert("Se ha registrado correctamente. Espere que su usuario sea aceptado por un administrador")
-                navigate('/')
-            }
-        });
+                console.log(response.data);
+                if(!response.data.agregado){
+                    alert(response.data.error)
+                }else{
+                    alert("Se ha registrado correctamente. Espere que su usuario sea aceptado por un administrador")
+                    navigate('/')
+                }
+            });
         } else alert("La confirmación de contraseña no coincide");
         
     }
