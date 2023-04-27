@@ -64,6 +64,19 @@ export const RegistroEmpresa = () => {
       return
     };
 
+    const regexNumber = /^\d+$/;
+    const regexCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+    if(!regexNumber.test(nit)){
+      alert("El NIT únicamente puede estar formado de numeros")
+      return
+    }
+
+    if(!regexCorreo.test(email)){
+      alert("El correo ingresado no tiene el formato adecuado de un correo")
+      return
+    }
+
     const data = {
       usuario,
       nombre,

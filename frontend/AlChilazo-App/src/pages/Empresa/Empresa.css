@@ -60,3 +60,9 @@
 	flex-direction: row;
 	justify-items: self-start;
 }
+
+
+.categorias-producto{
+	overflow: scroll;
+	height: 100%;
+}

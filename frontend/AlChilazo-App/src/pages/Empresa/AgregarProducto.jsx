@@ -11,11 +11,19 @@ const AgregarProducto = (props) => {
   const handleSubmit = (event) => {
     event.preventDefault();
     const { nombre, precio, categoria } = event.target;
+    console.log(precio)
     if (foto64 === "") {
       alert("Debe de seleccionar una imagen");
       return;
     }
     const picture = foto64.split(",")[1];
+
+    const regexNumber = /^\d+$/;
+
+    if(!regexNumber.test(precio.value)){
+      alert("El precio del producto debe de ser un valor númerico")
+      return
+    }
 
     const data = {
       nombre: nombre.value,
