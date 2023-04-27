@@ -396,6 +396,35 @@ app.get('/listaUsuarios', function (req, res) {
     })
 });
 
+/** Ordenes
+ * 0 pendiente de asignar repartidor
+ * 1 en ruta
+ * 2 entregado
+ * 3 cancelado
+ */
+
+app.get('/listaRepartidores', function (req, res) {
+  conn.query('select rep.* from Repartidor rep left join Orden ord on rep.idRepartidor = ord.idRepartidor and ord.OrdSt not in (0,1)',
+    function (err, results, fields) {
+      if (err) throw err;
+      else console.log('Selected ' + results.length + ' row(s).');
+
+      res.send(results)
+      console.log('Done.');
+    })
+})
+
+app.get('/listaEmpresas', function (req, res) {
+  conn.query('select emp.* from Empresa emp left join Orden ord on emp.idEmpresa = ord.idEmpresa and ord.OrdSt not in (0,1)',
+    function (err, results, fields) {
+      if (err) throw err;
+      else console.log('Selected ' + results.length + ' row(s).');
+
+      res.send(results)
+      console.log('Done.');
+    })
+})
+
 app.post('/cambiarEstadoUsuario', function (req, res) {
   let estado = req.body.estado;
   let idUsuario = req.body.idUsuario;
