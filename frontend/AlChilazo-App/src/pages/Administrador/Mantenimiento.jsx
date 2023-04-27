@@ -10,8 +10,10 @@ import { ItemBaja } from './ItemBaja';
 export const Mantenimiento = (props) => {
   const urlRep = 'http://localhost:4000/listaRepartidores';
   const urlEmp = 'http://localhost:4000/listaEmpresas';
+  const urlDocs = 'http://localhost:4000/docsEmpresa';
 
   const [reqSolicitud, setReqSolicitud] = useState({});
+  const [reqDocsSolicitud, setReqDocsSolicitud] = useState([]);
   const [datosAPIRep, setDatosAPIRep] = useState([]);
   const [datosAPIEmp, setDatosAPIEmp] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -29,10 +31,18 @@ export const Mantenimiento = (props) => {
   }, []);
 
   function funcShowModal(item, tipo, titu) {
-    setReqSolicitud(item);
-    setTipo(tipo);
-    setTitulo(titu);
-    setShowModal(true);
+
+    axios.post(urlDocs, {
+      idEmpresa: item.idEmpresa
+    }).then((response) => {
+      const { data } = response.data || [];
+      console.log(data);
+      setReqDocsSolicitud(data);
+      setReqSolicitud(item);
+      setTipo(tipo);
+      setTitulo(titu);
+      setShowModal(true);
+    });
   }
 
   function onClose() {
@@ -54,7 +64,7 @@ export const Mantenimiento = (props) => {
           (
             <div>
               <Button variant="contained" className="btn-info btn-outline-light btn-sm" startIcon={<ArrowBackIcon />} onClick={() => onClose()}>Regresar</Button>
-              <InfoBaja solicitud={reqSolicitud} tipo={tipo} titulo={titulo} />
+              <InfoBaja solicitud={reqSolicitud} docs={reqDocsSolicitud} tipo={tipo} titulo={titulo} />
             </div>
           ) :
           (

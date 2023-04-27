@@ -404,7 +404,7 @@ app.get('/listaUsuarios', function (req, res) {
  */
 
 app.get('/listaRepartidores', function (req, res) {
-  conn.query('select rep.* from Repartidor rep left join Orden ord on rep.idRepartidor = ord.idRepartidor and ord.OrdSt not in (0,1)',
+  conn.query('select rep.* from Repartidor rep where rep.RepEst = 1 and rep.idRepartidor not in (select idRepartidor from Orden where OrdSt not in (0,1))',
     function (err, results, fields) {
       if (err) throw err;
       else console.log('Selected ' + results.length + ' row(s).');
@@ -415,7 +415,7 @@ app.get('/listaRepartidores', function (req, res) {
 })
 
 app.get('/listaEmpresas', function (req, res) {
-  conn.query('select emp.* from Empresa emp left join Orden ord on emp.idEmpresa = ord.idEmpresa and ord.OrdSt not in (0,1)',
+  conn.query('select emp.* from Empresa emp where emp.EmpEst = 1 and emp.idEmpresa not in (select idEmpresa from Orden where OrdSt not in (0,1))',
     function (err, results, fields) {
       if (err) throw err;
       else console.log('Selected ' + results.length + ' row(s).');
@@ -458,6 +458,11 @@ app.post('/aprobarSolicitud', async function (req, res) {
   let idUsuario = req.body.idUsuario;
   let idSolicitud = req.body.idSolicitud;
   let tipo = req.body.tipo;
+  let operacion = req.body.operacion;
+  let comentario = req.body.comentario;
+
+  const fechaFormateada = format(new Date(), "yyyy/MM/dd");
+  console.log("date: " + fechaFormateada)
 
   await query({
     sql: `UPDATE usuario2 SET estado = ? WHERE idUsuario = ?;`,
@@ -465,16 +470,29 @@ app.post('/aprobarSolicitud', async function (req, res) {
   })
 
   if (tipo == 1) {
-    await query({
-      sql: `UPDATE Repartidor SET RepEst = ?, RepFecEstAlta = sysdate() WHERE idRepartidor = ?;`,
-      params: [estado, idSolicitud]
-    })
-
+    if (operacion = 1) {
+      await query({
+        sql: `UPDATE Repartidor SET RepEst = ?, RepFecEstAlta = ?, comentario = ? WHERE idRepartidor = ?;`,
+        params: [estado, fechaFormateada, comentario, idSolicitud]
+      })
+    } else {
+      await query({
+        sql: `UPDATE Repartidor SET RepEst = ?, RepFecEstBaja = ?, comentario = ? WHERE idRepartidor = ?;`,
+        params: [estado, fechaFormateada, comentario, idSolicitud]
+      })
+    }
   } else {
-    await query({
-      sql: `UPDATE Empresa SET EmpEst = ? ,EmpFecAlta = sysdate() WHERE idEmpresa = ?;`,
-      params: [estado, idSolicitud]
-    })
+    if (operacion = 1) {
+      await query({
+        sql: `UPDATE Empresa SET EmpEst = ? ,EmpFecAlta = ?, comentario = ? WHERE idEmpresa = ?;`,
+        params: [estado, fechaFormateada, comentario, idSolicitud]
+      })
+    } else {
+      await query({
+        sql: `UPDATE Empresa SET EmpEst = ? ,EmpFecBaja = ?, comentario = ? WHERE idEmpresa = ?;`,
+        params: [estado, fechaFormateada, comentario, idSolicitud]
+      })
+    }
   }
   return res.send({ "actualizado": true })
 });

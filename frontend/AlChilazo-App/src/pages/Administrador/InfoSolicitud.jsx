@@ -7,7 +7,9 @@ export const InfoSolicitud = (props) => {
 
   const [procesado, setProcesado] = useState(false);
   const [doc, setDoc] = useState('');
+  const [comment, setComment] = useState('');
 
+  const operation = 1;
   const url = 'http://localhost:4000/aprobarSolicitud';
 
   function getDocName(value) {
@@ -19,20 +21,33 @@ export const InfoSolicitud = (props) => {
     setDoc(event.target.value);
   };
 
-  function processRequest(idReq, idUser, estado, operacion) {
-    console.log("id: " + idReq + "idUser: " + idUser + ", estado: " + estado + ", operacion: " + operacion);
+  function processRequest(idReq, idUser, estado, type, operation) {
+    console.log("id: " + idReq + "idUser: " + idUser + ", estado: " + estado + ", tipo: " + type);
+    console.log("comentario: " + comment + ", operacion: " + operation);
+
+    if (estado == 3 && comment.length == 0) {
+      alert('Ingrese un comentario para rechazar solicitud.');
+      return;
+    }
+
     axios
       .post(url, {
         estado: estado,
         idSolicitud: idReq,
         idUsuario: idUser,
-        tipo: operacion
+        tipo: type,
+        comentario: comment,
+        operacion: operation
       })
       .then((response) => {
         console.log(response.data);
         alert('Operacion realizada con exito.');
         setProcesado(true);
       });
+  }
+
+  function handleOnChange(event) {
+    setComment(event.target.value);
   }
 
   return (
@@ -43,7 +58,7 @@ export const InfoSolicitud = (props) => {
           props.tipo === 1
             ? (
               <div className="info-card-container border-gray rounded border d-flex flex-row align-items-center ">
-                <div className="position-relative border-gray border-right px-4 rounded-left">
+                <div className="position-relative border-gray border-right px-4 rounded-left" style={{ height: "95%" }}>
                   <label className='info-lb-label'>Nombres: </label>
                   <span className="info-value d-block">[ {props.solicitud.RepNom1 + ' ' + props.solicitud.RepNom2} ]</span>
                   <label className='info-lb-label'>Apellidos: </label>
@@ -63,20 +78,35 @@ export const InfoSolicitud = (props) => {
                   <label className='info-lb-label'>Departamento: </label>
                   <span className="info-value d-block">[ {props.solicitud.departamento} ]</span>
                   <br />
-                  <button type="button" className="button-44 btn-outline-warning" onClick={(e) => processRequest(props.solicitud.idRepartidor, props.solicitud.idUsuario, 1, 1)} disabled={procesado}>
+                  <button type="button" className="button-44 btn-outline-warning" style={{ height: "40px" }}
+                    onClick={(e) => processRequest(props.solicitud.idRepartidor, props.solicitud.idUsuario, 1, 1, 1)} disabled={procesado}>
                     Activar
                   </button>
-                  <button type="button" className="button-42 btn-outline-warning" onClick={(e) => processRequest(props.solicitud.idRepartidor, props.solicitud.idUsuario, 3, 1)} disabled={procesado}>
+                  <button type="button" className="button-42 btn-outline-warning" style={{ height: "40px" }}
+                    onClick={(e) => processRequest(props.solicitud.idRepartidor, props.solicitud.idUsuario, 3, 1, 2)} disabled={procesado}>
                     Rechazar
                   </button>
                   {
-                    procesado === true ? <span style={{
-                      color: "white", fontw
-                        : "bold"
-                    }}> Procesado! </span> : <></>
+                    procesado === true
+                      ?
+                      (
+                        <div>
+                          <span style={{
+                            color: "white", fontWeight: "bold"
+                          }}> Procesado! </span>
+                        </div>
+                      )
+                      :
+                      (<div>
+                        <label className='info-lb-label'>Comentario: </label>
+                        <textarea placeholder='ingrese un comentario.' rows={3} cols={25}
+                          name="comentario"
+                          value={comment}
+                          onChange={handleOnChange}></textarea>
+                      </div>)
                   }
                 </div>
-                <div className="col-md-8" style={{ height: "380px", background: '#06263b' }}>
+                <div className="col-md-8" style={{ height: "95%", background: '#06263b' }}>
                   <object data={props.solicitud.RepCV} type="application/pdf" width="100%" height="100%">
                     <p> <a href={props.solicitud.RepCV}>Mostrar Pdf</a></p>
                   </object>
@@ -86,7 +116,7 @@ export const InfoSolicitud = (props) => {
             :
             (
               <div className="info-card-container border-gray rounded border d-flex flex-row align-items-center ">
-                <div className="position-relative border-gray border-right px-4 rounded-left">
+                <div className="position-relative border-gray border-right px-4 rounded-left" style={{ height: "95%" }}>
                   <label className='info-lb-label'>Empresa: </label>
                   <span className="info-value d-block">[ {props.solicitud.EmpNombre} ]</span>
                   <label className='info-lb-label'>Descripción: </label>
@@ -104,19 +134,35 @@ export const InfoSolicitud = (props) => {
                   <label className='info-lb-label'>Departamento: </label>
                   <span className="info-value d-block">[ {props.solicitud.departamento} ]</span>
                   <br />
-                  <button type="button" className="button-44 btn-outline-warning" onClick={(e) => processRequest(props.solicitud.idEmpresa, props.solicitud.idUsuario, 1, 2)} disabled={procesado}>
+                  <button type="button" className="button-44 btn-outline-warning" style={{ height: "40px" }}
+                    onClick={(e) => processRequest(props.solicitud.idEmpresa, props.solicitud.idUsuario, 1, 2, 1)} disabled={procesado}>
                     Activar
                   </button>
-                  <button type="button" className="button-42 btn-outline-warning" onClick={(e) => processRequest(props.solicitud.idEmpresa, props.solicitud.idUsuario, 3, 2)} disabled={procesado}>
+                  <button type="button" className="button-42 btn-outline-warning" style={{ height: "40px" }}
+                    onClick={(e) => processRequest(props.solicitud.idEmpresa, props.solicitud.idUsuario, 3, 2, 2)} disabled={procesado}>
                     Rechazar
                   </button>
                   {
-                    procesado === true ? <span style={{
-                      color: "white", fontWeight: "bold"
-                    }}> Procesado! </span> : <></>
+                    procesado === true
+                      ?
+                      (
+                        <div>
+                          <span style={{
+                            color: "white", fontWeight: "bold"
+                          }}> Procesado! </span>
+                        </div>
+                      )
+                      :
+                      (<div>
+                        <label className='info-lb-label'>Comentario: </label>
+                        <textarea placeholder='ingrese un comentario.' rows={3} cols={25}
+                          name="comentario"
+                          value={comment}
+                          onChange={handleOnChange}></textarea>
+                      </div>)
                   }
                 </div>
-                <div className="col-md-8" style={{ height: "380px", background: '#06263b' }}>
+                <div className="col-md-8" style={{ height: "95%", background: '#06263b' }}>
                   <select style={{ borderRadius: "6px" }} value={doc} onChange={handleChange}>
                     <option key={""} value={""}>Seleccione...</option>
                     {props.docs.map(option => (
