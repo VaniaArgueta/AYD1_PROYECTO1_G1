@@ -48,6 +48,7 @@ export const DashboardPage = (props) => {
                   <div>
                     <button type="button" className="btn btn-outline-danger btn-lg" onClick={() => setTipo(0)}>Solicitud Repartidores</button>
                     <button type="button" className="btn btn-outline-danger btn-lg" onClick={() => setTipo(1)}>Solicitud Empresas</button>
+                    <button type="button" className="btn btn-outline-danger btn-lg" onClick={() => setTipo(22)}>Solicitud Cambio Zona</button>
                     <button type="button" className="btn btn-outline-danger btn-lg" onClick={() => setTipo(2)}>Deshabilitar Usuarios</button>
                     <button type="button" className="btn btn-outline-danger btn-lg" onClick={() => setTipo(3)}>Mantenimiento Repartidores y Empresas</button>
                     <button type="button" className="btn btn-outline-danger btn-lg" onClick={() => setTipo(4)}>Reportes</button>

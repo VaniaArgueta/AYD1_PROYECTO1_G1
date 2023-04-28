@@ -26,6 +26,7 @@ export const DeshabilitarUsuarios = (props) => {
   return (
     <>
       <div className="rowS">
+        <p className="info-lb-label-title"> LISTA DE USUARIOS </p>
         {
           datosAPI.map((item, index) => {
             return (

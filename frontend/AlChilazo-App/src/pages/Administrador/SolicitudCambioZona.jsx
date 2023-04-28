@@ -7,12 +7,10 @@ import Button from '@mui/material/Button';
 import { ItemSolicitud } from './ItemSolicitud';
 import { InfoSolicitud } from './InfoSolicitud';
 
-export const SolicitudEmpresas = (props) => {
-  const url = 'http://localhost:4000/solicitudesEmpresa';
-  const urlDocs = 'http://localhost:4000/docsEmpresa';
+export const SolicitudCambioZona = (props) => {
+  const url = 'http://localhost:4000/solicitudesCambioZona';
 
   const [reqSolicitud, setReqSolicitud] = useState({});
-  const [reqDocsSolicitud, setReqDocsSolicitud] = useState([]);
   const [datosAPI, setDatosAPI] = useState([]);
   const [showModal, setShowModal] = useState(false);
 
@@ -23,15 +21,8 @@ export const SolicitudEmpresas = (props) => {
   }, []);
 
   function funcShowModal(item) {
-    axios.post(urlDocs, {
-      idEmpresa: item.idEmpresa
-    }).then((response) => {
-      const { data } = response.data || [];
-      console.log(data);
-      setReqDocsSolicitud(data);
-      setReqSolicitud(item);
-      setShowModal(true);
-    });
+    setReqSolicitud(item);
+    setShowModal(true);
   }
 
   function onClose() {
@@ -48,7 +39,7 @@ export const SolicitudEmpresas = (props) => {
           (
             <div>
               <Button variant="contained" className="btn-info btn-outline-light btn-sm" startIcon={<ArrowBackIcon />} onClick={() => onClose()}>Regresar</Button>
-              <InfoSolicitud solicitud={reqSolicitud} docs={reqDocsSolicitud} tipo={2} titulo={'EMPRESA'} />
+              <InfoSolicitud solicitud={reqSolicitud} tipo={3} titulo={'CAMBIO ZONA'} />
             </div>
           ) :
           (
@@ -62,24 +53,10 @@ export const SolicitudEmpresas = (props) => {
                   return (
                     <div key={index} onClick={() => funcShowModal(item)}>
                       <ItemSolicitud
-                        idEmpresa={item.idEmpresa}
-                        idTipEmp={item.idTipEmp}
-                        idCiudad={item.idCiudad}
-                        idDepto={item.idDepto}
-                        idPais={item.idPais}
-                        NIT={item.NIT}
-                        EmpNombre={item.EmpNombre}
-                        EmpDsc={item.EmpDsc}
-                        EmpEmail={item.EmpEmail}
-                        EmpEst={item.EmpEst}
-                        EmpFecAlta={item.EmpFecAlta}
-                        EmpFecBaja={item.EmpFecBaja}
-                        idUsuario={item.idUsuario}
-                        tipoEmpresa={item.tipoEmpresa}
-                        pais={item.pais}
-                        departamento={item.departamento}
-                        ciudad={item.ciudad}
-                        tipo={2}
+                        NoSolicitud={item.NoSolicitud}
+                        Nombre={item.Nombre}
+                        Razon={item.Razon}
+                        tipo={3}
                         item={item}
                         key={index}
                       />

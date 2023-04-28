@@ -44,6 +44,10 @@ export const SolicitudRepartidores = (props) => {
           ) :
           (
             <div className="rowS">
+              <p className="info-lb-label-title"> LISTA DE SOLICITUDES </p>
+              <div className='list'>
+                {datosAPI.length ? <br /> : <p style={{ fontWeight: "bold", fontSize: "1.2rem" }}>No se encontraron registros.</p>}
+              </div>
               {
                 datosAPI.map((item, index) => {
                   return (

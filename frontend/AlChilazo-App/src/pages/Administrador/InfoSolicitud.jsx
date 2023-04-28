@@ -11,6 +11,7 @@ export const InfoSolicitud = (props) => {
 
   const operation = 1;
   const url = 'http://localhost:4000/aprobarSolicitud';
+  const urlCZ = 'http://localhost:4000/aprobarSolicitudCambioZona';
 
   function getDocName(value) {
     let index = value.lastIndexOf('/');
@@ -38,6 +39,26 @@ export const InfoSolicitud = (props) => {
         tipo: type,
         comentario: comment,
         operacion: operation
+      })
+      .then((response) => {
+        console.log(response.data);
+        alert('Operacion realizada con exito.');
+        setProcesado(true);
+      });
+  }
+
+  function processRequestCZ(idReq, idRep, idCiudad, idDepto, type, estado) {
+    console.log("solicitud: " + idReq + "idCiudad: " + idCiudad + ", idDepto: " + idDepto + ", tipo: " + type);
+    console.log("idRep: " + idRep + "estado: " + estado);
+
+    axios
+      .post(urlCZ, {
+        estado: estado,
+        idSolicitud: idReq,
+        idRepartidor: idRep,
+        idCiudad: idCiudad,
+        idDepto: idDepto,
+        tipo: type
       })
       .then((response) => {
         console.log(response.data);
@@ -113,7 +134,11 @@ export const InfoSolicitud = (props) => {
                 </div>
               </div>
             )
-            :
+            : (<></>)
+        }
+        {
+          props.tipo === 2
+            ?
             (
               <div className="info-card-container border-gray rounded border d-flex flex-row align-items-center ">
                 <div className="position-relative border-gray border-right px-4 rounded-left" style={{ height: "95%" }}>
@@ -176,7 +201,60 @@ export const InfoSolicitud = (props) => {
                   </object>
                 </div>
               </div>
-            )
+            ) : (<></>)
+        }
+        {
+          props.tipo === 3
+            ?
+            (
+              <div className="info-card-container border-gray rounded border ">
+                <div className="position-relative border-gray border-right px-4 rounded-left" style={{ height: "50%", columnCount: "2" }}>
+                  <label className='info-lb-label'>No. Solicitud: </label>
+                  <span className="info-value d-block">[ {props.solicitud.NoSolicitud} ]</span>
+                  <label className='info-lb-label'>Nombre: </label>
+                  <span className="info-value d-block">[ {props.solicitud.Nombre} ]</span>
+                  <label className='info-lb-label'>Razón: </label>
+                  <span className="info-value d-block">[ {props.solicitud.Razon} ]</span>
+                  <label className='info-lb-label'>Estado: </label>
+                  <span className="info-value d-block">[ {props.solicitud.Estado === 0 ? 'PENDIENTE' : 'DESCONOCIDO'} ]</span>
+                  <label className='info-lb-label'>Antigua Ciudad: </label>
+                  <span className="info-value d-block">[ {props.solicitud.ViejaCiudad} ]</span>
+                  <label className='info-lb-label'>Antiguo Departamento: </label>
+                  <span className="info-value d-block">[ {props.solicitud.ViejoDepartamento} ]</span>
+                  <label className='info-lb-label'>Nueva Ciudad: </label>
+                  <span className="info-value d-block">[ {props.solicitud.NuevaCiudad} ]</span>
+                  <label className='info-lb-label'>Nuevo Departamento: </label>
+                  <span className="info-value d-block">[ {props.solicitud.NuevoDepartamento} ]</span>
+                  <br />
+
+                </div>
+                <div className='position-relative' style={{
+                  padding: " 0% 20%"
+                }}>
+                  <button type="button" className="button-44 btn-outline-warning mr-3" style={{ height: "40px", width: "150px" }}
+                    onClick={(e) => processRequestCZ(props.solicitud.NoSolicitud, props.solicitud.idRepartidor, props.solicitud.idNuevaCiudad, props.solicitud.idNuevoDepto, 1, 1)} disabled={procesado}>
+                    Aprobar
+                  </button>
+                  <button type="button" className="button-42 btn-outline-warning ml-3" style={{ height: "40px", width: "150px" }}
+                    onClick={(e) => processRequestCZ(props.solicitud.NoSolicitud, props.solicitud.idRepartidor, props.solicitud.idNuevaCiudad, props.solicitud.idNuevoDepto, 2, 2)} disabled={procesado}>
+                    Denegar
+                  </button>
+                  {
+                    procesado === true
+                      ?
+                      (
+                        <div>
+                          <span style={{
+                            color: "white", fontWeight: "bold"
+                          }}> Procesado! </span>
+                        </div>
+                      )
+                      :
+                      (<></>)
+                  }
+                </div>
+              </div>
+            ) : (<></>)
         }
       </div>
     </>
