@@ -491,7 +491,7 @@ app.get('/listaUsuarios', function (req, res) {
  */
 
 app.get('/listaRepartidores', function (req, res) {
-  conn.query('select rep.* from Repartidor rep where rep.RepEst = 1 and rep.idRepartidor not in (select idRepartidor from Orden where OrdSt not in (0,1,2))',
+  conn.query('select rep.* from Repartidor rep where rep.RepEst = 1 and rep.idRepartidor not in (select idRepartidor from Orden where estadoPedido not in (0,1,2))',
     function (err, results, fields) {
       if (err) throw err;
       else console.log('Selected ' + results.length + ' row(s).');
@@ -502,7 +502,7 @@ app.get('/listaRepartidores', function (req, res) {
 })
 
 app.get('/listaEmpresas', function (req, res) {
-  conn.query('select emp.* from Empresa emp where emp.EmpEst = 1 and emp.idEmpresa not in (select idEmpresa from Orden where OrdSt not in (0,1,2))',
+  conn.query('select emp.* from Empresa emp where emp.EmpEst = 1 and emp.idEmpresa not in (select idEmpresa from Orden where estadoPedido not in (0,1,2))',
     function (err, results, fields) {
       if (err) throw err;
       else console.log('Selected ' + results.length + ' row(s).');
@@ -603,6 +603,44 @@ app.post("/docsEmpresa", function (req, res) {
       else console.log("selected " + results.length + " row(s).");
       res.send(({ data: results }));
     });
+});
+
+app.get('/solicitudesCambioZona', function (req, res) {
+  conn.query("select cz.NoSolicitud,cz.Razon,cz.Estado,CONCAT(rep.RepNom1,' ',rep.RepApe1) as Nombre,(select DeptoDsc from Departamento where idDepto = cz.idDepartamento) as NuevoDepartamento, (select CiudadDsc from Ciudad where idCiudad = cz.idCiudad and idDepto = cz.idDepartamento) as NuevaCiudad, cz.idRepartidor,cz.idCiudad as idNuevaCiudad,cz.idDepartamento as idNuevoDepto , (select CiudadDsc from Ciudad where idCiudad = rep.idCiudad and idDepto = rep.idDepto) as ViejaCiudad,(select DeptoDsc from Departamento where idDepto = rep.idDepto) as ViejoDepartamento from CambioZona cz join Repartidor rep on cz.idRepartidor = rep.idRepartidor where cz.Estado = 0",
+    function (err, results, fields) {
+      if (err) throw err;
+      else console.log('Selected ' + results.length + ' row(s).');
+
+      res.send(results)
+      console.log('Done.');
+    })
+});
+
+
+app.post('/aprobarSolicitudCambioZona', async function (req, res) {
+  let estado = req.body.estado;
+  let idSolicitud = req.body.idSolicitud;
+  let idRepartidor = req.body.idRepartidor;
+  let idCiudad = req.body.idCiudad;
+  let idDepto = req.body.idDepto;
+  let tipo = req.body.tipo;
+
+  if (tipo == 1) {
+    await query({
+      sql: `UPDATE Repartidor SET idCiudad = ?, idDepto = ? WHERE idRepartidor = ?;`,
+      params: [idCiudad, idDepto, idRepartidor]
+    })
+    await query({
+      sql: `UPDATE CambioZona SET Estado = ? WHERE NoSolicitud = ?;`,
+      params: [estado, idSolicitud]
+    })
+  } else {
+    await query({
+      sql: `UPDATE CambioZona SET Estado = ? WHERE NoSolicitud = ?;`,
+      params: [estado, idSolicitud]
+    })
+  }
+  return res.send({ "actualizado": true })
 });
 
 //-----------------------------FIN PERFIL ADMIN------------------------------------

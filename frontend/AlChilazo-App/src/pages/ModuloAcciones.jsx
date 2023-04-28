@@ -27,6 +27,7 @@ import {ReportesEmpresa} from './Empresa/ReportesEmpresa';
 import {InformeRestaurantes} from './Empresa/InformeRestaurantes';
 import AgregarProducto from './Empresa/AgregarProducto';
 import { ProductosPanel } from './Empresa/ProductosPanel';
+import { SolicitudCambioZona } from './Administrador/SolicitudCambioZona';
 
 export const ModuloAcciones = (props) => {
   
@@ -75,6 +76,8 @@ export const ModuloAcciones = (props) => {
       return <ReportesEmpresa />;
     case 19:
       return <InformeRestaurantes />;
+    case 22:
+      return <SolicitudCambioZona />;
     default:
       return <HomePage/>;
   }
