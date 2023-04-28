@@ -25,7 +25,7 @@ app.post('/CambiodeZona', async function (req, res) {
     idRepartidor,
     razonCambio,
     departamento,
-    ciudad} = req.body
+    ciudad } = req.body
 
   const idDepartamento = await query({
     sql: `SELECT idDepto as id FROM Departamento WHERE DeptoDsc = "${departamento}"`
@@ -38,7 +38,7 @@ app.post('/CambiodeZona', async function (req, res) {
   //0 - Pendiente
   //1 - Aceptado
   //2 - Rechazado
-  
+
   await query({
     sql: `INSERT INTO CambioZona(idRepartidor,Razon,Estado,idDepartamento,idCiudad) VALUES(?,?,?,?,?)`,
     params: [idRepartidor, razonCambio, 0, idDepartamento, idCiudad]
@@ -50,41 +50,41 @@ app.post('/CambiodeZona', async function (req, res) {
 
 // -----------------------------------------------PERFIL REPARTIDOR-----------------------------------------------------------------------
 
-app.post('/Informacion',async function(req,res){
-  const {idusuario
+app.post('/Informacion', async function (req, res) {
+  const { idusuario
   } = req.body
   const datosUsuario = await query({
-    sql:`SELECT * FROM usuario2 WHERE idUsuario="${idusuario}"`
+    sql: `SELECT * FROM usuario2 WHERE idUsuario="${idusuario}"`
   })
   const datosRepartidor = await query({
-    sql:`SELECT * FROM Repartidor WHERE idUsuario="${idusuario}"`
+    sql: `SELECT * FROM Repartidor WHERE idUsuario="${idusuario}"`
   })
   const NombreDepartamento = await query({
-    sql:`SELECT DeptoDsc as name FROM Departamento WHERE idDepto = "${datosRepartidor[0].idDepto}"`
+    sql: `SELECT DeptoDsc as name FROM Departamento WHERE idDepto = "${datosRepartidor[0].idDepto}"`
   })
   const NombreCiudad = await query({
-    sql:`SELECT CiudadDsc as name FROM Ciudad WHERE idCiudad = "${datosRepartidor[0].idCiudad}"`
+    sql: `SELECT CiudadDsc as name FROM Ciudad WHERE idCiudad = "${datosRepartidor[0].idCiudad}"`
   })
   //Aqui falta ver lo de cuando el status este 
   const DatosOrdenes = await query({
-    sql:`SELECT * FROM Orden WHERE idRepartidor = "${datosRepartidor[0].idRepartidor}" AND OrdSt = "1"`
+    sql: `SELECT * FROM Orden WHERE idRepartidor = "${datosRepartidor[0].idRepartidor}" AND OrdSt = "1"`
   })
   let sumaCalificacion = 0;
   let promedio = 0;
-  if ( DatosOrdenes.length > 0) {
+  if (DatosOrdenes.length > 0) {
     for (let i = 0; i < DatosOrdenes.length; i++) {
-      const dato =  DatosOrdenes[i];
-      sumaCalificacion +=  dato.RepCalif
+      const dato = DatosOrdenes[i];
+      sumaCalificacion += dato.RepCalif
     }
     promedio = sumaCalificacion / datos.length;
   } else {
     console.log('El array está vacío.');
   }
 
-  const fecha =  datosRepartidor[0].RepFecNac;
+  const fecha = datosRepartidor[0].RepFecNac;
   const fechaFormateada = format(new Date(fecha), "yyyy/MM/dd");
   let respuesta = {
-    nombreCompleto: datosRepartidor[0].RepNom1 + " " +  datosRepartidor[0].RepNom2 + " " + datosRepartidor[0].RepApe1 + " " + datosRepartidor[0].RepApe2,
+    nombreCompleto: datosRepartidor[0].RepNom1 + " " + datosRepartidor[0].RepNom2 + " " + datosRepartidor[0].RepApe1 + " " + datosRepartidor[0].RepApe2,
     username: datosUsuario[0].usuario,
     email: datosUsuario[0].email,
     idRepartidor: datosRepartidor[0].idRepartidor,
@@ -96,9 +96,9 @@ app.post('/Informacion',async function(req,res){
     tieneTransProp: datosRepartidor[0].RepTransProp,
     calificacion: promedio,
   }
-  if (datosRepartidor[0].RepLicencia === 1){
+  if (datosRepartidor[0].RepLicencia === 1) {
     const datosLicencia = await query({
-      sql:`SELECT * FROM RepLicencia WHERE idRepartidor = "${datosRepartidor[0].idRepartidor}"`
+      sql: `SELECT * FROM RepLicencia WHERE idRepartidor = "${datosRepartidor[0].idRepartidor}"`
     });
     respuesta.numLic = datosLicencia[0].RepNumLic;
     respuesta.tipoLic = datosLicencia[0].RepTipoLic;
@@ -106,9 +106,9 @@ app.post('/Informacion',async function(req,res){
     const fechaFormateada1 = format(new Date(fecha1), "yyyy/MM/dd");
     respuesta.expiracion = fechaFormateada1;
   };
-  if (datosRepartidor[0].RepTransProp === 1){
+  if (datosRepartidor[0].RepTransProp === 1) {
     const datosVehiculo = await query({
-      sql:`SELECT * FROM RepVehiculo WHERE idRepartidor = ${datosRepartidor[0].idRepartidor}`
+      sql: `SELECT * FROM RepVehiculo WHERE idRepartidor = ${datosRepartidor[0].idRepartidor}`
     });
     respuesta.numPlaca = datosVehiculo[0].VehPlacaNum;
     respuesta.tipoPlaca = datosVehiculo[0].VehTipPlaca;
@@ -171,7 +171,7 @@ app.post('/registroRepartidor', async function (req, res) {
     propio = 1;
   };
   let lic = 0;
-  if (hasLicense){
+  if (hasLicense) {
     lic = 1;
   };
   let pass = md5(password)
@@ -318,6 +318,9 @@ app.get("/login/(:usuario)/(:password)", function (req, res) {
         if (results[0].estado === 0) {
           console.log('Usuario inactivo');
           return res.send({ resultadoLogin: 3 }); // 3 usuario inactivo           
+        } else if (results[0].estado === 2) {
+          console.log('Usuario pendiente de activacion.');
+          return res.send({ resultadoLogin: 2 }); // 3 usuario inactivo           
         }
 
         password = md5(password);
@@ -488,7 +491,7 @@ app.get('/listaUsuarios', function (req, res) {
  */
 
 app.get('/listaRepartidores', function (req, res) {
-  conn.query('select rep.* from Repartidor rep where rep.RepEst = 1 and rep.idRepartidor not in (select idRepartidor from Orden where OrdSt not in (0,1))',
+  conn.query('select rep.* from Repartidor rep where rep.RepEst = 1 and rep.idRepartidor not in (select idRepartidor from Orden where OrdSt not in (0,1,2))',
     function (err, results, fields) {
       if (err) throw err;
       else console.log('Selected ' + results.length + ' row(s).');
@@ -499,7 +502,7 @@ app.get('/listaRepartidores', function (req, res) {
 })
 
 app.get('/listaEmpresas', function (req, res) {
-  conn.query('select emp.* from Empresa emp where emp.EmpEst = 1 and emp.idEmpresa not in (select idEmpresa from Orden where OrdSt not in (0,1))',
+  conn.query('select emp.* from Empresa emp where emp.EmpEst = 1 and emp.idEmpresa not in (select idEmpresa from Orden where OrdSt not in (0,1,2))',
     function (err, results, fields) {
       if (err) throw err;
       else console.log('Selected ' + results.length + ' row(s).');
@@ -671,23 +674,23 @@ app.get('/catalogoProductos/(:userEmpresa)', async (req, res) => {
 })
 
 
-app.get('/producto/(:idProducto)',async function(req,res){
-  const {idProducto} = req.params
+app.get('/producto/(:idProducto)', async function (req, res) {
+  const { idProducto } = req.params
   const producto = await query({
-    sql:`SELECT * FROM EmpProd WHERE IdProd=${idProducto}`
+    sql: `SELECT * FROM EmpProd WHERE IdProd=${idProducto}`
   })
   const categoria = await query({
     sql: `SELECT CataProdDsc FROM CateProd WHERE idCateProd="${producto[0].idCateProd}"`
   })
-  res.send({producto,categoria})
+  res.send({ producto, categoria })
 })
 
 
-app.put('/producto', async function(req,res){
-  const {idProducto,nombreProducto,categoria,precio} = req.body
-  let {picture} = req.body
+app.put('/producto', async function (req, res) {
+  const { idProducto, nombreProducto, categoria, precio } = req.body
+  let { picture } = req.body
   console.log(picture)
-  picture = picture === "" ? "": (await saveImagePedido(Date.now().toString() + ".png", picture)).Location
+  picture = picture === "" ? "" : (await saveImagePedido(Date.now().toString() + ".png", picture)).Location
 
   let idCategoria = await query({
     sql: `SELECT idCateProd AS idCategoria FROM CateProd WHERE CataProdDsc ="${categoria}"`
@@ -702,30 +705,30 @@ app.put('/producto', async function(req,res){
     })
   }
 
-  if(!picture){
+  if (!picture) {
     await query({
-      sql:`UPDATE EmpProd SET ProdDsc="${nombreProducto}", idCateProd=${idCategoria[0].idCategoria}, 
+      sql: `UPDATE EmpProd SET ProdDsc="${nombreProducto}", idCateProd=${idCategoria[0].idCategoria}, 
            precio=${precio} WHERE idProd=${idProducto}`
     })
-  }else{
+  } else {
     await query({
-      sql:`UPDATE EmpProd SET ProdDsc="${nombreProducto}", idCateProd=${idCategoria[0].idCategoria}, 
+      sql: `UPDATE EmpProd SET ProdDsc="${nombreProducto}", idCateProd=${idCategoria[0].idCategoria}, 
            ProdImg="${picture}",precio=${precio} WHERE idProd=${idProducto}`
     })
   }
-  
 
-  res.send({updated:true})
+
+  res.send({ updated: true })
 
 })
 
 
-app.delete('/producto/(:idProducto)', async function(req,res){
-  const {idProducto} = req.params
+app.delete('/producto/(:idProducto)', async function (req, res) {
+  const { idProducto } = req.params
   await query({
-    sql:`DELETE FROM EmpProd WHERE IdProd=${idProducto}`
+    sql: `DELETE FROM EmpProd WHERE IdProd=${idProducto}`
   })
-  res.send({eliminado:true})
+  res.send({ eliminado: true })
 })
 
 

@@ -43,6 +43,8 @@ export const LoginPage = () => {
 							},
 						});
 
+					} else if (data.resultadoLogin == 2) {
+						alert('Usuario no autorizado, contacte al Admin.');
 					} else if (data.resultadoLogin == -1) {
 						alert('Error inesperado o datos incorrectos');
 					} else if (data.resultadoLogin == -2) {
