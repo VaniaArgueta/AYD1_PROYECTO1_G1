@@ -756,13 +756,75 @@ app.put('/producto', async function (req, res) {
   }
 
 
+  res.send({updated:true})
+
+})
+
+app.get('/ordenEmpresa/(:userEmpresa)', async (req,res) =>{
+  const { userEmpresa } = req.params
+  console.log(userEmpresa)
+  const idEmpresa = await query({
+      sql: `SELECT e.idEmpresa AS id FROM Empresa e, usuario2 u WHERE u.usuario="${userEmpresa}" AND u.rol=3 AND e.EmpNombre = u.nombre`
+    })
+  console.log(idEmpresa)  
+
+  
+  const data = {}
+
+  const ordenes = await query({
+    sql:`SELECT u.usuario, o.idOrden,c.CiudadDsc, d.DeptoDsc, o.montoPedido, o.fechaPedido
+         FROM usuario2 u, Orden o, Ciudad c, Departamento d
+         WHERE o.idUsuario = u.idUsuario
+          AND o.idCiudad = c.idCiudad
+          AND o.idDepartamento = d.idDepto
+          AND o.estadoPedido=0
+          AND o.idEmpresa = ?`,
+    params:[idEmpresa[0].id]
+  })
+  console.log(ordenes)
+
+  res.send({ordenes})
+
+  /* ordenes.forEach(async (element) =>{
+    const carrito = await query({
+      sql:`SELECT `
+    })
+  }) */
+
+})
+
+
+app.put('/aceptarOrdenEmpresa', async (req,res) => {
+  const {idOrden} = req.body
+
+  query({
+    sql:`UPDATE Orden SET estadoPedido = 1 WHERE idOrden = ${idOrden}`
+  })
+
+  res.send({updated:true})
+
   res.send({ updated: true })
 
 })
 
 
-app.delete('/producto/(:idProducto)', async function (req, res) {
-  const { idProducto } = req.params
+app.put('/rechazarOrdenEmpresa', async (req,res) => {
+  const {idOrden} = req.body
+
+  query({
+    sql:`UPDATE Orden SET estadoPedido = 4 WHERE idOrden = ${idOrden}`
+  })
+
+  res.send({updated:true})
+  
+})
+
+
+
+
+
+app.delete('/producto/(:idProducto)', async function(req,res){
+  const {idProducto} = req.params
   await query({
     sql: `DELETE FROM EmpProd WHERE IdProd=${idProducto}`
   })

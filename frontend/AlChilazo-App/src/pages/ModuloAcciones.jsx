@@ -69,7 +69,7 @@ export const ModuloAcciones = (props) => {
     case 152:
       return <CatalogoProductos usuario={props.usuario} editar={true}></CatalogoProductos>
     case 16:
-      return <Pedidos />;
+      return <Pedidos usuario={props.usuario}/>;
     case 17:
       return <OfertasYCombos />;
     case 18:
