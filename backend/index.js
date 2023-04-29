@@ -949,8 +949,6 @@ app.put('/aceptarOrdenEmpresa', async (req,res) => {
 
   res.send({updated:true})
 
-  res.send({ updated: true })
-
 })
 
 
