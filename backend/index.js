@@ -213,7 +213,7 @@ app.post('/Informacion', async function (req, res) {
   })
   //Aqui falta ver lo de cuando el status este 
   const DatosOrdenes = await query({
->>>>>>> Stashed changes
+
   })
   let sumaCalificacion = 0;
   let promedio = 0;
