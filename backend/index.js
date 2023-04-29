@@ -213,16 +213,16 @@ app.post('/Informacion', async function (req, res) {
   })
   //Aqui falta ver lo de cuando el status este 
   const DatosOrdenes = await query({
-    sql: `SELECT * FROM Orden WHERE idRepartidor = "${datosRepartidor[0].idRepartidor}" AND estadoPedido = 3`
+    sql: `SELECT * FROM Orden WHERE idRepartidor = "${datosRepartidor[0].idRepartidor}" AND estadoPedido=3`
   })
   let sumaCalificacion = 0;
   let promedio = 0;
   if (DatosOrdenes.length > 0) {
     for (let i = 0; i < DatosOrdenes.length; i++) {
       const dato = DatosOrdenes[i];
-      sumaCalificacion += dato.RepCalif
+      sumaCalificacion += dato.calificacion
     }
-    promedio = sumaCalificacion / datos.length;
+    promedio = sumaCalificacion / DatosOrdenes.length;
   } else {
     console.log('El array está vacío.');
   }
