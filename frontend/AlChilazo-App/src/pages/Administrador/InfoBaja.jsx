@@ -3,15 +3,14 @@ import { useState } from 'react';
 import axios from "axios";
 import './style.css';
 
-export const InfoSolicitud = (props) => {
+export const InfoBaja = (props) => {
 
   const [procesado, setProcesado] = useState(false);
   const [doc, setDoc] = useState('');
   const [comment, setComment] = useState('');
 
-  const operation = 1;
+  const operation = 2;
   const url = 'http://localhost:4000/aprobarSolicitud';
-  const urlCZ = 'http://localhost:4000/aprobarSolicitudCambioZona';
 
   function getDocName(value) {
     let index = value.lastIndexOf('/');
@@ -22,12 +21,12 @@ export const InfoSolicitud = (props) => {
     setDoc(event.target.value);
   };
 
-  function processRequest(idReq, idUser, estado, type, operation) {
+  function processRequest(idReq, idUser, estado, type) {
     console.log("id: " + idReq + "idUser: " + idUser + ", estado: " + estado + ", tipo: " + type);
     console.log("comentario: " + comment + ", operacion: " + operation);
 
-    if (estado == 3 && comment.length == 0) {
-      alert('Ingrese un comentario para rechazar solicitud.');
+    if (comment.length == 0) {
+      alert('Ingrese un comentario de inactivación.');
       return;
     }
 
@@ -36,29 +35,9 @@ export const InfoSolicitud = (props) => {
         estado: estado,
         idSolicitud: idReq,
         idUsuario: idUser,
-        tipo: type,
+        tipo: operacion,
         comentario: comment,
         operacion: operation
-      })
-      .then((response) => {
-        console.log(response.data);
-        alert('Operacion realizada con exito.');
-        setProcesado(true);
-      });
-  }
-
-  function processRequestCZ(idReq, idRep, idCiudad, idDepto, type, estado) {
-    console.log("solicitud: " + idReq + "idCiudad: " + idCiudad + ", idDepto: " + idDepto + ", tipo: " + type);
-    console.log("idRep: " + idRep + "estado: " + estado);
-
-    axios
-      .post(urlCZ, {
-        estado: estado,
-        idSolicitud: idReq,
-        idRepartidor: idRep,
-        idCiudad: idCiudad,
-        idDepto: idDepto,
-        tipo: type
       })
       .then((response) => {
         console.log(response.data);
@@ -74,7 +53,7 @@ export const InfoSolicitud = (props) => {
   return (
     <>
       <div>
-        <p className="info-lb-label-title">SOLICITUD DE {props.titulo} </p>
+        <p className="info-lb-label-title">PERFIL DE {props.titulo} </p>
         {
           props.tipo === 1
             ? (
@@ -94,18 +73,10 @@ export const InfoSolicitud = (props) => {
                   <span className="info-value d-block">[ {props.solicitud.RepTransProp === 1 ? 'SI' : 'NO'} ]</span>
                   <label className='info-lb-label'>Pais: </label>
                   <span className="info-value d-block">[ {props.solicitud.pais} ]</span>
-                  <label className='info-lb-label'>Ciudad: </label>
-                  <span className="info-value d-block">[ {props.solicitud.ciudad} ]</span>
-                  <label className='info-lb-label'>Departamento: </label>
-                  <span className="info-value d-block">[ {props.solicitud.departamento} ]</span>
                   <br />
-                  <button type="button" className="button-44 btn-outline-warning" style={{ height: "40px" }}
-                    onClick={(e) => processRequest(props.solicitud.idRepartidor, props.solicitud.idUsuario, 1, 1, 1)} disabled={procesado}>
-                    Activar
-                  </button>
                   <button type="button" className="button-42 btn-outline-warning" style={{ height: "40px" }}
-                    onClick={(e) => processRequest(props.solicitud.idRepartidor, props.solicitud.idUsuario, 3, 1, 2)} disabled={procesado}>
-                    Rechazar
+                    onClick={(e) => processRequest(props.solicitud.idRepartidor, props.solicitud.idUsuario, 0, 1)} disabled={procesado}>
+                    Inactivar
                   </button>
                   {
                     procesado === true
@@ -134,11 +105,7 @@ export const InfoSolicitud = (props) => {
                 </div>
               </div>
             )
-            : (<></>)
-        }
-        {
-          props.tipo === 2
-            ?
+            :
             (
               <div className="info-card-container border-gray rounded border d-flex flex-row align-items-center ">
                 <div className="position-relative border-gray border-right px-4 rounded-left" style={{ height: "95%" }}>
@@ -154,18 +121,10 @@ export const InfoSolicitud = (props) => {
                   <span className="info-value d-block">[ {props.solicitud.tipoEmpresa} ]</span>
                   <label className='info-lb-label'>Pais: </label>
                   <span className="info-value d-block">[ {props.solicitud.pais} ]</span>
-                  <label className='info-lb-label'>Ciudad: </label>
-                  <span className="info-value d-block">[ {props.solicitud.ciudad} ]</span>
-                  <label className='info-lb-label'>Departamento: </label>
-                  <span className="info-value d-block">[ {props.solicitud.departamento} ]</span>
                   <br />
-                  <button type="button" className="button-44 btn-outline-warning" style={{ height: "40px" }}
-                    onClick={(e) => processRequest(props.solicitud.idEmpresa, props.solicitud.idUsuario, 1, 2, 1)} disabled={procesado}>
-                    Activar
-                  </button>
                   <button type="button" className="button-42 btn-outline-warning" style={{ height: "40px" }}
-                    onClick={(e) => processRequest(props.solicitud.idEmpresa, props.solicitud.idUsuario, 3, 2, 2)} disabled={procesado}>
-                    Rechazar
+                    onClick={(e) => processRequest(props.solicitud.idEmpresa, props.solicitud.idUsuario, 0, 2)} disabled={procesado}>
+                    Inactivar
                   </button>
                   {
                     procesado === true
@@ -188,6 +147,7 @@ export const InfoSolicitud = (props) => {
                   }
                 </div>
                 <div className="col-md-8" style={{ height: "95%", background: '#06263b' }}>
+
                   <select style={{ borderRadius: "6px" }} value={doc} onChange={handleChange}>
                     <option key={""} value={""}>Seleccione...</option>
                     {props.docs.map(option => (
@@ -196,65 +156,13 @@ export const InfoSolicitud = (props) => {
                       </option>
                     ))}
                   </select>
+
                   <object data={doc} type="application/pdf" width="100%" height="100%">
                     <p> <a href={doc}>Mostrar Pdf</a></p>
                   </object>
                 </div>
               </div>
-            ) : (<></>)
-        }
-        {
-          props.tipo === 3
-            ?
-            (
-              <div className="info-card-container border-gray rounded border ">
-                <div className="position-relative border-gray border-right px-4 rounded-left" style={{ height: "50%", columnCount: "2" }}>
-                  <label className='info-lb-label'>No. Solicitud: </label>
-                  <span className="info-value d-block">[ {props.solicitud.NoSolicitud} ]</span>
-                  <label className='info-lb-label'>Nombre: </label>
-                  <span className="info-value d-block">[ {props.solicitud.Nombre} ]</span>
-                  <label className='info-lb-label'>Razón: </label>
-                  <span className="info-value d-block">[ {props.solicitud.Razon} ]</span>
-                  <label className='info-lb-label'>Estado: </label>
-                  <span className="info-value d-block">[ {props.solicitud.Estado === 0 ? 'PENDIENTE' : 'DESCONOCIDO'} ]</span>
-                  <label className='info-lb-label'>Antigua Ciudad: </label>
-                  <span className="info-value d-block">[ {props.solicitud.ViejaCiudad} ]</span>
-                  <label className='info-lb-label'>Antiguo Departamento: </label>
-                  <span className="info-value d-block">[ {props.solicitud.ViejoDepartamento} ]</span>
-                  <label className='info-lb-label'>Nueva Ciudad: </label>
-                  <span className="info-value d-block">[ {props.solicitud.NuevaCiudad} ]</span>
-                  <label className='info-lb-label'>Nuevo Departamento: </label>
-                  <span className="info-value d-block">[ {props.solicitud.NuevoDepartamento} ]</span>
-                  <br />
-
-                </div>
-                <div className='position-relative' style={{
-                  padding: " 0% 20%"
-                }}>
-                  <button type="button" className="button-44 btn-outline-warning mr-3" style={{ height: "40px", width: "150px" }}
-                    onClick={(e) => processRequestCZ(props.solicitud.NoSolicitud, props.solicitud.idRepartidor, props.solicitud.idNuevaCiudad, props.solicitud.idNuevoDepto, 1, 1)} disabled={procesado}>
-                    Aprobar
-                  </button>
-                  <button type="button" className="button-42 btn-outline-warning ml-3" style={{ height: "40px", width: "150px" }}
-                    onClick={(e) => processRequestCZ(props.solicitud.NoSolicitud, props.solicitud.idRepartidor, props.solicitud.idNuevaCiudad, props.solicitud.idNuevoDepto, 2, 2)} disabled={procesado}>
-                    Denegar
-                  </button>
-                  {
-                    procesado === true
-                      ?
-                      (
-                        <div>
-                          <span style={{
-                            color: "white", fontWeight: "bold"
-                          }}> Procesado! </span>
-                        </div>
-                      )
-                      :
-                      (<></>)
-                  }
-                </div>
-              </div>
-            ) : (<></>)
+            )
         }
       </div>
     </>

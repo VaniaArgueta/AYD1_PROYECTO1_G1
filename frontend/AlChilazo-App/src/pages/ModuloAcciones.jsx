@@ -27,6 +27,7 @@ import {ReportesEmpresa} from './Empresa/ReportesEmpresa';
 import {InformeRestaurantes} from './Empresa/InformeRestaurantes';
 import AgregarProducto from './Empresa/AgregarProducto';
 import { ProductosPanel } from './Empresa/ProductosPanel';
+import { SolicitudCambioZona } from './Administrador/SolicitudCambioZona';
 
 export const ModuloAcciones = (props) => {
   
@@ -42,9 +43,9 @@ export const ModuloAcciones = (props) => {
     case 4:
       return <ReportesAdministrador />;
     case 5:
-      return <ListadoSolicitudEntrega />;
+      return <ListadoSolicitudEntrega datos={props}/>;
     case 6:
-      return <PedidosAsignados />;
+      return <PedidosAsignados datos={props}/>;
     case 7:
       return <PerfilRepartidor datos={props}/>;
     case 8:
@@ -68,13 +69,15 @@ export const ModuloAcciones = (props) => {
     case 152:
       return <CatalogoProductos usuario={props.usuario} editar={true}></CatalogoProductos>
     case 16:
-      return <Pedidos />;
+      return <Pedidos usuario={props.usuario}/>;
     case 17:
       return <OfertasYCombos />;
     case 18:
       return <ReportesEmpresa />;
     case 19:
       return <InformeRestaurantes />;
+    case 22:
+      return <SolicitudCambioZona />;
     default:
       return <HomePage/>;
   }

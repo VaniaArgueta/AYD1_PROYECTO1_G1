@@ -8,16 +8,15 @@ export const CatalogoProductos = (props) => {
   const [productos, setProductos] = useState([]);
   const [catalogoUpdated, setCatalogoUpdated] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [idProductoEdit, setIdProductoEdit] = useState("")
+  const [idProductoEdit, setIdProductoEdit] = useState("");
 
   const [foto64, setFoto64] = useState("");
-  const [precio, setPrecio] = useState(0)
-  const [nombreProducto, setNombreProducto] = useState("")
-  const [categoria, setCategoria] = useState("")
-
+  const [precio, setPrecio] = useState(0);
+  const [nombreProducto, setNombreProducto] = useState("");
+  const [categoria, setCategoria] = useState("");
 
   useEffect(() => {
-    setShowModal(false)
+    setShowModal(false);
     axios
       .get(`http://localhost:4000/catalogoProductos/${props.usuario}`, {
         responseType: "json",
@@ -28,47 +27,44 @@ export const CatalogoProductos = (props) => {
       });
   }, [catalogoUpdated]);
 
-
-  useEffect(()=>{
-    if(!showModal) return
+  useEffect(() => {
+    if (!showModal) return;
     axios
       .get(`http://localhost:4000/producto/${idProductoEdit}`, {
         responseType: "json",
       })
       .then((res) => {
-        console.log(res.data)
-        setNombreProducto(res.data.producto[0].ProdDsc)
-        setPrecio(res.data.producto[0].precio)
-        setCategoria(res.data.categoria[0].CataProdDsc)
+        console.log(res.data);
+        setNombreProducto(res.data.producto[0].ProdDsc);
+        setPrecio(res.data.producto[0].precio);
+        setCategoria(res.data.categoria[0].CataProdDsc);
       });
-  },[idProductoEdit])
+  }, [idProductoEdit]);
 
-
-  const handleSubmit = (event) =>{
+  const handleSubmit = (event) => {
     event.preventDefault();
 
-    console.log(foto64)
+    console.log(foto64);
     const picture = foto64 !== "" ? foto64.split(",")[1] : "";
-    const data ={
-      idProducto:idProductoEdit,
+    const data = {
+      idProducto: idProductoEdit,
       nombreProducto,
       categoria,
       precio,
-      picture
-    }
-    console.log(data)
-    axios.put('http://localhost:4000/producto',data)
-      .then(res =>{
-         console.log(res.data)
-         if(res.data.updated){
-          alert("Se ha actualizado el producto correctamente")
-          setShowModal(false)
-          setCatalogoUpdated(!catalogoUpdated)
-         }else{
-          alert("Ha ocurrido un error al actualizar el producto")
-         }
-      })
-  }
+      picture,
+    };
+    console.log(data);
+    axios.put("http://localhost:4000/producto", data).then((res) => {
+      console.log(res.data);
+      if (res.data.updated) {
+        alert("Se ha actualizado el producto correctamente");
+        setShowModal(false);
+        setCatalogoUpdated(!catalogoUpdated);
+      } else {
+        alert("Ha ocurrido un error al actualizar el producto");
+      }
+    });
+  };
 
   return (
     <>
@@ -84,7 +80,7 @@ export const CatalogoProductos = (props) => {
                   id="nombre"
                   placeholder="Nombre"
                   value={nombreProducto}
-                  onChange={ (e) => setNombreProducto(e.target.value) }
+                  onChange={(e) => setNombreProducto(e.target.value)}
                   required
                 />
               </div>
@@ -95,7 +91,7 @@ export const CatalogoProductos = (props) => {
                   id="precio"
                   value={precio}
                   placeholder="Precio"
-                  onChange={ (e) => setPrecio(e.target.value) }
+                  onChange={(e) => setPrecio(e.target.value)}
                   required
                 />
               </div>
@@ -106,7 +102,7 @@ export const CatalogoProductos = (props) => {
                   id="categoria"
                   placeholder="Categoria"
                   value={categoria}
-                  onChange={ (e) => setCategoria(e.target.value) }
+                  onChange={(e) => setCategoria(e.target.value)}
                   required
                 />
               </div>
@@ -128,31 +124,33 @@ export const CatalogoProductos = (props) => {
         </div>
       ) : (
         <div>
+          <div className="rowS">
           <h2>Catalogo de productos</h2>
-          {productos.map((producto) => (
-            <div>
-              {producto.productos.length > 0 && (
-                <div>
-                  <h3>{producto.categoria.CataProdDsc}</h3>
-                  {props.editar ? (
-                    <ProductosPanel
-                      key={producto.categoria.idCateProd}
-                      productos={producto.productos}
-                      setCatalogoUpdated={setCatalogoUpdated}
-                      catalogoUpdated={catalogoUpdated}
-                      setShowModal={setShowModal}
-                      setIdProductoEdit={setIdProductoEdit}
-                    />
-                  ) : (
-                    <Productos
-                      key={producto.categoria.idCateProd}
-                      productos={producto.productos}
-                    />
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
+            {productos.map((producto) => (
+              <div>
+                {producto.productos.length > 0 && (
+                  <div>
+                    <h3>{producto.categoria.CataProdDsc}</h3>
+                    {props.editar ? (
+                      <ProductosPanel
+                        key={producto.categoria.idCateProd}
+                        productos={producto.productos}
+                        setCatalogoUpdated={setCatalogoUpdated}
+                        catalogoUpdated={catalogoUpdated}
+                        setShowModal={setShowModal}
+                        setIdProductoEdit={setIdProductoEdit}
+                      />
+                    ) : (
+                      <Productos
+                        key={producto.categoria.idCateProd}
+                        productos={producto.productos}
+                      />
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </>
