@@ -70,8 +70,7 @@ export const DashboardPage = (props) => {
               (
                 <div>
                   <button type="button" className="btn btn-outline-danger btn-lg" onClick={() => setTipo(10)}>Categorias</button>
-                  <button type="button" className="btn btn-outline-danger btn-lg" onClick={() => setTipo(11)}>Pedir producto</button>
-                  <button type="button" className="btn btn-outline-danger btn-lg" onClick={() => setTipo(12)}>Carrito de compra</button>
+                  <button type="button" className="btn btn-outline-danger btn-lg" onClick={() => setTipo(11)}>Buscar restaurante</button>
                   <button type="button" className="btn btn-outline-danger btn-lg" onClick={() => setTipo(13)}>Historial de pedidos</button>
                 </div>
               )}

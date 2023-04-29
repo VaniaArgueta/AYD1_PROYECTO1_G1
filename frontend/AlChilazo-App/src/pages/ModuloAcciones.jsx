@@ -18,6 +18,9 @@ import {CarritoCompra} from './Usuario/CarritoCompra';
 import {Categorias} from './Usuario/Categorias';
 import {HistorialPedidosUsuario} from './Usuario/HistorialPedidosUsuario';
 import {PedirProducto} from './Usuario/PedirProducto';
+import { BuscarEmpresa } from './Usuario/BuscarEmpresa';
+import { Direcciones } from './Usuario/Direcciones';
+import { MetodosPago } from './Usuario/MetodosPago';
 //Empresa
 import {CatalogoProductos} from './Empresa/CatalogoProductos';
 import {PanelControl} from './Empresa/PanelControl';
@@ -53,11 +56,13 @@ export const ModuloAcciones = (props) => {
     case 9:
       return <ComisionesGeneradasRepartidor />;
     case 10:
-      return <Categorias />;
+      return <Categorias tipo={0} />;
     case 11:
-      return <PedirProducto />;
+      return <BuscarEmpresa />;
     case 12:
-      return <CarritoCompra />;
+      return <Direcciones />;
+    case 1122:
+        return <MetodosPago />;
     case 13:
       return <HistorialPedidosUsuario />;
     case 14:
