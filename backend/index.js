@@ -27,12 +27,12 @@ app.get("/AgendarOrden/(:idorden)/(:idUsuario)", async (req, res) => {
   console.log(idorden);
   console.log(idUsuario);
   const datosRepartidor = await query({
-    sql:`SELECT * FROM Repartidor WHERE idUsuario="${idUsuario}"`
+    sql: `SELECT * FROM Repartidor WHERE idUsuario="${idUsuario}"`
   });
   console.log(datosRepartidor)
   let idRepartidor = datosRepartidor[0].idRepartidor
   const ActualizarOrden = await query({
-    sql:`UPDATE Orden SET idRepartidor = "${idRepartidor}", estadoPedido = 2 WHERE idOrden="${idorden}"`
+    sql: `UPDATE Orden SET idRepartidor = "${idRepartidor}", estadoPedido = 2 WHERE idOrden="${idorden}"`
   });
   if (ActualizarOrden.affectedRows > 0) {
     res.send({ resultado: true });
@@ -47,12 +47,12 @@ app.get("/EntregarOrden/(:idorden)/(:idUsuario)", async (req, res) => {
   console.log(idorden);
   console.log(idUsuario);
   const datosRepartidor = await query({
-    sql:`SELECT * FROM Repartidor WHERE idUsuario="${idUsuario}"`
+    sql: `SELECT * FROM Repartidor WHERE idUsuario="${idUsuario}"`
   });
   console.log(datosRepartidor)
   let idRepartidor = datosRepartidor[0].idRepartidor
   const ActualizarOrden = await query({
-    sql:`UPDATE Orden SET idRepartidor = "${idRepartidor}", estadoPedido = 3 WHERE idOrden="${idorden}"`
+    sql: `UPDATE Orden SET idRepartidor = "${idRepartidor}", estadoPedido = 3 WHERE idOrden="${idorden}"`
   });
   if (ActualizarOrden.affectedRows > 0) {
     res.send({ resultado: true });
@@ -67,12 +67,12 @@ app.get("/CancelarOrden/(:idorden)/(:idUsuario)", async (req, res) => {
   console.log(idorden);
   console.log(idUsuario);
   const datosRepartidor = await query({
-    sql:`SELECT * FROM Repartidor WHERE idUsuario="${idUsuario}"`
+    sql: `SELECT * FROM Repartidor WHERE idUsuario="${idUsuario}"`
   });
   console.log(datosRepartidor)
   let idRepartidor = datosRepartidor[0].idRepartidor
   const ActualizarOrden = await query({
-    sql:`UPDATE Orden SET idRepartidor = "${idRepartidor}", estadoPedido = 4 WHERE idOrden="${idorden}"`
+    sql: `UPDATE Orden SET idRepartidor = "${idRepartidor}", estadoPedido = 4 WHERE idOrden="${idorden}"`
   });
   if (ActualizarOrden.affectedRows > 0) {
     res.send({ resultado: true });
@@ -85,7 +85,7 @@ app.get('/OrdenActiva/(:idUsuario)', async (req, res) => {
   const { idUsuario } = req.params
   console.log(`SELECT * FROM Repartidor WHERE idUsuario="${idUsuario}"`);
   const datosRepartidor = await query({
-    sql:`SELECT * FROM Repartidor WHERE idUsuario="${idUsuario}"`
+    sql: `SELECT * FROM Repartidor WHERE idUsuario="${idUsuario}"`
   });
   console.log(datosRepartidor)
   let idRepartidor = datosRepartidor[0].idRepartidor
@@ -95,21 +95,21 @@ app.get('/OrdenActiva/(:idUsuario)', async (req, res) => {
   console.log(idDepartamento)
   console.log(idCiudad)
   const DatosOrden = await query({
-    sql:`SELECT * FROM Orden WHERE idRepartidor="${idRepartidor}" AND estadoPedido = 2`
+    sql: `SELECT * FROM Orden WHERE idRepartidor="${idRepartidor}" AND estadoPedido = 2`
   });
   const NombreDepartamento = await query({
-    sql:`SELECT DeptoDsc as name FROM Departamento WHERE idDepto = "${datosRepartidor[0].idDepto}"`
+    sql: `SELECT DeptoDsc as name FROM Departamento WHERE idDepto = "${datosRepartidor[0].idDepto}"`
   })
   const NombreCiudad = await query({
-    sql:`SELECT CiudadDsc as name FROM Ciudad WHERE idCiudad = "${datosRepartidor[0].idCiudad}"`
+    sql: `SELECT CiudadDsc as name FROM Ciudad WHERE idCiudad = "${datosRepartidor[0].idCiudad}"`
   })
-  
+
   console.log("DatosOrden")
   console.log(DatosOrden)
   console.log(DatosOrden.length)
   console.log("DatosOrden.length === 0")
   console.log(DatosOrden.length === 0)
-  res.send({ datos: DatosOrden.length === 0, departamento: NombreDepartamento[0].name, ciudad: NombreCiudad[0].name})
+  res.send({ datos: DatosOrden.length === 0, departamento: NombreDepartamento[0].name, ciudad: NombreCiudad[0].name })
 
 })
 
@@ -117,17 +117,17 @@ app.get('/OrdenPendiente/(:idUsuario)', async (req, res) => {
   const { idUsuario } = req.params
   console.log(`SELECT * FROM Repartidor WHERE idUsuario="${idUsuario}"`);
   const datosRepartidor = await query({
-    sql:`SELECT * FROM Repartidor WHERE idUsuario="${idUsuario}"`
+    sql: `SELECT * FROM Repartidor WHERE idUsuario="${idUsuario}"`
   });
   console.log(datosRepartidor)
   let idRepartidor = datosRepartidor[0].idRepartidor
   const DatosOrden = await query({
-    sql:`SELECT * FROM Orden WHERE idRepartidor="${idRepartidor}" AND estadoPedido = 2`
+    sql: `SELECT * FROM Orden WHERE idRepartidor="${idRepartidor}" AND estadoPedido = 2`
   });
   console.log("DatosOrden")
   console.log(DatosOrden)
   console.log(DatosOrden.length)
-  res.send({ ordenes: DatosOrden,cantidadOrdenes: DatosOrden.length })
+  res.send({ ordenes: DatosOrden, cantidadOrdenes: DatosOrden.length })
 })
 
 app.get('/lisadoOrdenes/(:idUsuario)', async (req, res) => {
@@ -135,7 +135,7 @@ app.get('/lisadoOrdenes/(:idUsuario)', async (req, res) => {
   const ordenes = []
   console.log(`SELECT * FROM Repartidor WHERE idUsuario="${idUsuario}"`);
   const datosRepartidor = await query({
-    sql:`SELECT * FROM Repartidor WHERE idUsuario="${idUsuario}"`
+    sql: `SELECT * FROM Repartidor WHERE idUsuario="${idUsuario}"`
   });
   console.log(datosRepartidor)
   let idRepartidor = datosRepartidor[0].idRepartidor
@@ -145,7 +145,7 @@ app.get('/lisadoOrdenes/(:idUsuario)', async (req, res) => {
   console.log(idDepartamento)
   console.log(idCiudad)
   const DatosOrden = await query({
-    sql:`SELECT * FROM Orden WHERE estadoPedido = 1 AND idCiudad = "${idCiudad}" AND idDepartamento = "${idDepartamento}"`
+    sql: `SELECT * FROM Orden WHERE estadoPedido = 1 AND idCiudad = "${idCiudad}" AND idDepartamento = "${idDepartamento}"`
   });
   /*
   const DatosOrden = await query({
@@ -155,7 +155,7 @@ app.get('/lisadoOrdenes/(:idUsuario)', async (req, res) => {
   console.log("DatosOrden")
   console.log(DatosOrden)
   console.log(DatosOrden.length)
-  res.send({ ordenes: DatosOrden,cantidadOrdenes: DatosOrden.length })
+  res.send({ ordenes: DatosOrden, cantidadOrdenes: DatosOrden.length })
 
 })
 
@@ -213,7 +213,7 @@ app.post('/Informacion', async function (req, res) {
   })
   //Aqui falta ver lo de cuando el status este 
   const DatosOrdenes = await query({
-
+    sql: `SELECT * FROM Orden WHERE idRepartidor = "${datosRepartidor[0].idRepartidor}" AND estadoPedido = 3`
   })
   let sumaCalificacion = 0;
   let promedio = 0;
@@ -902,34 +902,34 @@ app.put('/producto', async function (req, res) {
   }
 
 
-  res.send({updated:true})
+  res.send({ updated: true })
 
 })
 
-app.get('/ordenEmpresa/(:userEmpresa)', async (req,res) =>{
+app.get('/ordenEmpresa/(:userEmpresa)', async (req, res) => {
   const { userEmpresa } = req.params
   console.log(userEmpresa)
   const idEmpresa = await query({
-      sql: `SELECT e.idEmpresa AS id FROM Empresa e, usuario2 u WHERE u.usuario="${userEmpresa}" AND u.rol=3 AND e.EmpNombre = u.nombre`
-    })
-  console.log(idEmpresa)  
+    sql: `SELECT e.idEmpresa AS id FROM Empresa e, usuario2 u WHERE u.usuario="${userEmpresa}" AND u.rol=3 AND e.EmpNombre = u.nombre`
+  })
+  console.log(idEmpresa)
 
-  
+
   const data = {}
 
   const ordenes = await query({
-    sql:`SELECT u.usuario, o.idOrden,c.CiudadDsc, d.DeptoDsc, o.montoPedido, o.fechaPedido
+    sql: `SELECT u.usuario, o.idOrden,c.CiudadDsc, d.DeptoDsc, o.montoPedido, o.fechaPedido
          FROM usuario2 u, Orden o, Ciudad c, Departamento d
          WHERE o.idUsuario = u.idUsuario
           AND o.idCiudad = c.idCiudad
           AND o.idDepartamento = d.idDepto
           AND o.estadoPedido=0
           AND o.idEmpresa = ?`,
-    params:[idEmpresa[0].id]
+    params: [idEmpresa[0].id]
   })
   console.log(ordenes)
 
-  res.send({ordenes})
+  res.send({ ordenes })
 
   /* ordenes.forEach(async (element) =>{
     const carrito = await query({
@@ -940,35 +940,35 @@ app.get('/ordenEmpresa/(:userEmpresa)', async (req,res) =>{
 })
 
 
-app.put('/aceptarOrdenEmpresa', async (req,res) => {
-  const {idOrden} = req.body
+app.put('/aceptarOrdenEmpresa', async (req, res) => {
+  const { idOrden } = req.body
 
   query({
-    sql:`UPDATE Orden SET estadoPedido = 1 WHERE idOrden = ${idOrden}`
+    sql: `UPDATE Orden SET estadoPedido = 1 WHERE idOrden = ${idOrden}`
   })
 
-  res.send({updated:true})
+  res.send({ updated: true })
 
 })
 
 
-app.put('/rechazarOrdenEmpresa', async (req,res) => {
-  const {idOrden} = req.body
+app.put('/rechazarOrdenEmpresa', async (req, res) => {
+  const { idOrden } = req.body
 
   query({
-    sql:`UPDATE Orden SET estadoPedido = 4 WHERE idOrden = ${idOrden}`
+    sql: `UPDATE Orden SET estadoPedido = 4 WHERE idOrden = ${idOrden}`
   })
 
-  res.send({updated:true})
-  
+  res.send({ updated: true })
+
 })
 
 
 
 
 
-app.delete('/producto/(:idProducto)', async function(req,res){
-  const {idProducto} = req.params
+app.delete('/producto/(:idProducto)', async function (req, res) {
+  const { idProducto } = req.params
   await query({
     sql: `DELETE FROM EmpProd WHERE IdProd=${idProducto}`
   })
@@ -1019,7 +1019,7 @@ app.get("/consultarEmpresaPorCategoria/(:idCategoria)", function (req, res) {
   conn.query(`select  distinct empresa.idEmpresa, empresa.EmpNombre from Empresa empresa 
               join EmpProd producto on empresa.idEmpresa = producto.idEmpresa
               join CateProd categoria on producto.idCateProd = categoria.idCateProd
-              where categoria.idCateProd = ?`,[idCategoria], function (err, results, fields) {
+              where categoria.idCateProd = ?`, [idCategoria], function (err, results, fields) {
     if (err) throw err;
     else console.log("Selected " + results.length + " row(s).");
     res.send((results));
@@ -1028,7 +1028,7 @@ app.get("/consultarEmpresaPorCategoria/(:idCategoria)", function (req, res) {
 
 app.get("/consultarProductosPorEmpresa/(:idEmpresa)", function (req, res) {
   let idEmpresa = req.params.idEmpresa;
-  conn.query(`select * from EmpProd where idEmpresa = ?`,[idEmpresa], function (err, results, fields) {
+  conn.query(`select * from EmpProd where idEmpresa = ?`, [idEmpresa], function (err, results, fields) {
     if (err) throw err;
     else console.log("Selected " + results.length + " row(s).");
     res.send((results));
@@ -1086,7 +1086,7 @@ app.get("/consultarPrueba", function (req, res) {
 
 app.get("/consultarMetodosPagoPorUsuario/(:idUsuario)", function (req, res) {
   let idUsuario = req.params.idUsuario;
-  conn.query("SELECT * FROM MetodoPagoUsuario where idUsuario = ?",[idUsuario], function (err, results, fields) {
+  conn.query("SELECT * FROM MetodoPagoUsuario where idUsuario = ?", [idUsuario], function (err, results, fields) {
     if (err) throw err;
     else console.log("Selected " + results.length + " row(s).");
     res.send((results));
@@ -1094,7 +1094,7 @@ app.get("/consultarMetodosPagoPorUsuario/(:idUsuario)", function (req, res) {
 });
 
 
-app.post("/agregaOrden", async  function (req, res) {
+app.post("/agregaOrden", async function (req, res) {
   let { idEmpresa, idUsuario, idDepartamento, idCiudad, cantidadProductos, montoPedido } = req.body
 
   //Date.now().toString()
@@ -1109,7 +1109,7 @@ app.post("/agregaOrden", async  function (req, res) {
   conn.query(
     `insert into Orden(idEmpresa, idUsuario, idRepartidor, estadoPedido, fechaPedido,idPais,idDepartamento,idCiudad,cantidadProductos,montoPedido,calificacion) 
     VALUES (?,?,?,?,?,?,?,?,?,?,?); `,
-    [idEmpresa, user[0].idUsuario, -1, 0, fecha, 1,idDepartamento,idCiudad,cantidadProductos,montoPedido,5], 
+    [idEmpresa, user[0].idUsuario, -1, 0, fecha, 1, idDepartamento, idCiudad, cantidadProductos, montoPedido, 5],
     function (err, results, fields) {
       if (err) {
         console.log(err);
@@ -1136,11 +1136,11 @@ app.post('/llenarCarrito', async (req, res) => {
 
     await query({
       sql: `INSERT INTO Carrito(idOrden,idProducto,cantidad,monto) VALUES(?,?,?,?)`,
-      params: [idOrden[0].idOrden,item.id,item.quantity,item.price]
+      params: [idOrden[0].idOrden, item.id, item.quantity, item.price]
     })
   }
 
-  res.send({ orden: idOrden})
+  res.send({ orden: idOrden })
 
 });
 
