@@ -622,5 +622,169 @@ app.get('/departamentos', async function (req, res) {
 
 //--------------------------------FIN EMPRESAS-------------------------------------
 
+
+
+
+
+
+// -------------------------------CATEGORÍAS RESTAURANTES--------------------------
+app.get("/consultarListadoCategorias", function (req, res) {
+  conn.query("SELECT * FROM CateProd", function (err, results, fields) {
+    if (err) throw err;
+    else console.log("Selected " + results.length + " row(s).");
+    res.send((results));
+  });
+});
+
+app.get("/consultarEmpresaPorCategoria/(:idCategoria)", function (req, res) {
+  let idCategoria = req.params.idCategoria;
+  conn.query(`select  distinct empresa.idEmpresa, empresa.EmpNombre from Empresa empresa 
+              join EmpProd producto on empresa.idEmpresa = producto.idEmpresa
+              join CateProd categoria on producto.idCateProd = categoria.idCateProd
+              where categoria.idCateProd = ?`,[idCategoria], function (err, results, fields) {
+    if (err) throw err;
+    else console.log("Selected " + results.length + " row(s).");
+    res.send((results));
+  });
+});
+
+app.get("/consultarProductosPorEmpresa/(:idEmpresa)", function (req, res) {
+  let idEmpresa = req.params.idEmpresa;
+  conn.query(`select * from EmpProd where idEmpresa = ?`,[idEmpresa], function (err, results, fields) {
+    if (err) throw err;
+    else console.log("Selected " + results.length + " row(s).");
+    res.send((results));
+  });
+});
+
+app.get("/consultarPaises", function (req, res) {
+  conn.query("SELECT * FROM Pais", function (err, results, fields) {
+    if (err) throw err;
+    else console.log("Selected " + results.length + " row(s).");
+    res.send((results));
+  });
+});
+
+app.get("/consultarDepartamentos", function (req, res) {
+  conn.query("SELECT * FROM Departamento", function (err, results, fields) {
+    if (err) throw err;
+    else console.log("Selected " + results.length + " row(s).");
+    res.send((results));
+  });
+});
+
+app.get("/consultarCiudades", function (req, res) {
+  conn.query("SELECT * FROM Ciudad", function (err, results, fields) {
+    if (err) throw err;
+    else console.log("Selected " + results.length + " row(s).");
+    res.send((results));
+  });
+});
+
+app.get("/consultarMetodosPago", function (req, res) {
+  conn.query("SELECT * FROM TipoMetodoPago", function (err, results, fields) {
+    if (err) throw err;
+    else console.log("Selected " + results.length + " row(s).");
+    res.send((results));
+  });
+});
+
+app.get("/consultarMetodoPagoUsuario", function (req, res) {
+  conn.query(`SELECT * FROM MetodoPagoUsuario mpu
+  join TipoMetodoPago tmp on mpu.idTipoMetodoPago = tmp.idTipoMetodoPago`, function (err, results, fields) {
+    if (err) throw err;
+    else console.log("Selected " + results.length + " row(s).");
+    res.send((results));
+  });
+});
+
+app.get("/consultarPrueba", function (req, res) {
+  conn.query("SELECT numTarjeta FROM MetodoPagoUsuario", function (err, results, fields) {
+    if (err) throw err;
+    else console.log("Selected " + results.length + " row(s).");
+    res.send((results));
+  });
+});
+
+app.get("/consultarMetodosPagoPorUsuario/(:idUsuario)", function (req, res) {
+  let idUsuario = req.params.idUsuario;
+  conn.query("SELECT * FROM MetodoPagoUsuario where idUsuario = ?",[idUsuario], function (err, results, fields) {
+    if (err) throw err;
+    else console.log("Selected " + results.length + " row(s).");
+    res.send((results));
+  });
+});
+
+
+app.post("/agregaOrden", async  function (req, res) {
+  let { idEmpresa, idUsuario, idDepartamento, idCiudad, cantidadProductos, montoPedido } = req.body
+
+  //Date.now().toString()
+
+  const user = await query({
+    sql: `SELECT idUsuario FROM usuario2 WHERE usuario = "${idUsuario}"`
+  })
+
+  console.log(user[0].idUsuario);
+  const fecha = new Date();
+
+  conn.query(
+    `insert into Orden(idEmpresa, idUsuario, idRepartidor, estadoPedido, fechaPedido,idPais,idDepartamento,idCiudad,cantidadProductos,montoPedido,calificacion) 
+    VALUES (?,?,?,?,?,?,?,?,?,?,?); `,
+    [idEmpresa, user[0].idUsuario, -1, 0, fecha, 1,idDepartamento,idCiudad,cantidadProductos,montoPedido,5], 
+    function (err, results, fields) {
+      if (err) {
+        console.log(err);
+        return res.send({ insertarOrden: false });
+      } else {
+        console.log("Inserted " + results.affectedRows + " row(s).");
+        return res.send({ insertarOrden: true });
+      }
+    }
+  );
+});
+
+app.post('/llenarCarrito', async (req, res) => {
+  const { items } = req.body
+  const catalogo = []
+  const consulta = `select idOrden from Orden order by idOrden desc limit 1`
+  const idOrden = await query({
+    sql: consulta
+  })
+  console.log(idOrden[0].idOrden);
+
+  for (let item of items) {
+    console.log(item);
+
+    await query({
+      sql: `INSERT INTO Carrito(idOrden,idProducto,cantidad,monto) VALUES(?,?,?,?)`,
+      params: [idOrden[0].idOrden,item.id,item.quantity,item.price]
+    })
+  }
+
+  res.send({ orden: idOrden})
+
+});
+
+app.get("/consultarOrdenes", function (req, res) {
+  conn.query("SELECT * FROm Orden", function (err, results, fields) {
+    if (err) throw err;
+    else console.log("Selected " + results.length + " row(s).");
+    res.send((results));
+  });
+});
+
+
+app.get("/consultarRestaurantes/(:palabraClave)", function (req, res) {
+  let palabraClave = req.params.palabraClave;
+  conn.query(`select * from Empresa where EmpNombre like '%${palabraClave}%'`, function (err, results, fields) {
+    if (err) throw err;
+    else console.log("Selected " + results.length + " row(s).");
+    res.send((results));
+  });
+});
+
+//------------------------------FIN CATEGORÍAS RESTAURANTES------------------------
+
 app.listen(4000);
 console.log("Server running on port 4000");
