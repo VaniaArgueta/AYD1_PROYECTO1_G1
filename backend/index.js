@@ -19,6 +19,148 @@ app.get("/", function (req, res) {
   res.send("Bienvenido a Proyecto 1 AlChilazo's NodeJs server")
 });
 
+// ----------------------------------------------LISTADO DE ORDENES -----------------------------------------------------------------------------
+
+app.get("/AgendarOrden/(:idorden)/(:idUsuario)", async (req, res) => {
+  let idorden = req.params.idorden;
+  let idUsuario = req.params.idUsuario;
+  console.log(idorden);
+  console.log(idUsuario);
+  const datosRepartidor = await query({
+    sql:`SELECT * FROM Repartidor WHERE idUsuario="${idUsuario}"`
+  });
+  console.log(datosRepartidor)
+  let idRepartidor = datosRepartidor[0].idRepartidor
+  const ActualizarOrden = await query({
+    sql:`UPDATE Orden SET idRepartidor = "${idRepartidor}", estadoPedido = 2 WHERE idOrden="${idorden}"`
+  });
+  if (ActualizarOrden.affectedRows > 0) {
+    res.send({ resultado: true });
+  } else {
+    res.send({ resultado: false });
+  }
+});
+
+app.get("/EntregarOrden/(:idorden)/(:idUsuario)", async (req, res) => {
+  let idorden = req.params.idorden;
+  let idUsuario = req.params.idUsuario;
+  console.log(idorden);
+  console.log(idUsuario);
+  const datosRepartidor = await query({
+    sql:`SELECT * FROM Repartidor WHERE idUsuario="${idUsuario}"`
+  });
+  console.log(datosRepartidor)
+  let idRepartidor = datosRepartidor[0].idRepartidor
+  const ActualizarOrden = await query({
+    sql:`UPDATE Orden SET idRepartidor = "${idRepartidor}", estadoPedido = 3 WHERE idOrden="${idorden}"`
+  });
+  if (ActualizarOrden.affectedRows > 0) {
+    res.send({ resultado: true });
+  } else {
+    res.send({ resultado: false });
+  }
+});
+
+app.get("/CancelarOrden/(:idorden)/(:idUsuario)", async (req, res) => {
+  let idorden = req.params.idorden;
+  let idUsuario = req.params.idUsuario;
+  console.log(idorden);
+  console.log(idUsuario);
+  const datosRepartidor = await query({
+    sql:`SELECT * FROM Repartidor WHERE idUsuario="${idUsuario}"`
+  });
+  console.log(datosRepartidor)
+  let idRepartidor = datosRepartidor[0].idRepartidor
+  const ActualizarOrden = await query({
+    sql:`UPDATE Orden SET idRepartidor = "${idRepartidor}", estadoPedido = 4 WHERE idOrden="${idorden}"`
+  });
+  if (ActualizarOrden.affectedRows > 0) {
+    res.send({ resultado: true });
+  } else {
+    res.send({ resultado: false });
+  }
+});
+
+app.get('/OrdenActiva/(:idUsuario)', async (req, res) => {
+  const { idUsuario } = req.params
+  console.log(`SELECT * FROM Repartidor WHERE idUsuario="${idUsuario}"`);
+  const datosRepartidor = await query({
+    sql:`SELECT * FROM Repartidor WHERE idUsuario="${idUsuario}"`
+  });
+  console.log(datosRepartidor)
+  let idRepartidor = datosRepartidor[0].idRepartidor
+  let idDepartamento = datosRepartidor[0].idDepto
+  let idCiudad = datosRepartidor[0].idCiudad
+  console.log(idRepartidor)
+  console.log(idDepartamento)
+  console.log(idCiudad)
+  const DatosOrden = await query({
+    sql:`SELECT * FROM Orden WHERE idRepartidor="${idRepartidor}" AND estadoPedido = 2`
+  });
+  const NombreDepartamento = await query({
+    sql:`SELECT DeptoDsc as name FROM Departamento WHERE idDepto = "${datosRepartidor[0].idDepto}"`
+  })
+  const NombreCiudad = await query({
+    sql:`SELECT CiudadDsc as name FROM Ciudad WHERE idCiudad = "${datosRepartidor[0].idCiudad}"`
+  })
+  
+  console.log("DatosOrden")
+  console.log(DatosOrden)
+  console.log(DatosOrden.length)
+  console.log("DatosOrden.length === 0")
+  console.log(DatosOrden.length === 0)
+  res.send({ datos: DatosOrden.length === 0, departamento: NombreDepartamento[0].name, ciudad: NombreCiudad[0].name})
+
+})
+
+app.get('/OrdenPendiente/(:idUsuario)', async (req, res) => {
+  const { idUsuario } = req.params
+  console.log(`SELECT * FROM Repartidor WHERE idUsuario="${idUsuario}"`);
+  const datosRepartidor = await query({
+    sql:`SELECT * FROM Repartidor WHERE idUsuario="${idUsuario}"`
+  });
+  console.log(datosRepartidor)
+  let idRepartidor = datosRepartidor[0].idRepartidor
+  const DatosOrden = await query({
+    sql:`SELECT * FROM Orden WHERE idRepartidor="${idRepartidor}" AND estadoPedido = 2`
+  });
+  console.log("DatosOrden")
+  console.log(DatosOrden)
+  console.log(DatosOrden.length)
+  res.send({ ordenes: DatosOrden,cantidadOrdenes: DatosOrden.length })
+})
+
+app.get('/lisadoOrdenes/(:idUsuario)', async (req, res) => {
+  const { idUsuario } = req.params
+  const ordenes = []
+  console.log(`SELECT * FROM Repartidor WHERE idUsuario="${idUsuario}"`);
+  const datosRepartidor = await query({
+    sql:`SELECT * FROM Repartidor WHERE idUsuario="${idUsuario}"`
+  });
+  console.log(datosRepartidor)
+  let idRepartidor = datosRepartidor[0].idRepartidor
+  let idDepartamento = datosRepartidor[0].idDepto
+  let idCiudad = datosRepartidor[0].idCiudad
+  console.log(idRepartidor)
+  console.log(idDepartamento)
+  console.log(idCiudad)
+  const DatosOrden = await query({
+    sql:`SELECT * FROM Orden WHERE estadoPedido = 1 AND idCiudad = "${idCiudad}" AND idDepartamento = "${idDepartamento}"`
+  });
+  /*
+  const DatosOrden = await query({
+    sql:`SELECT * FROM Orden WHERE idCiudad = "${idCiudad}" AND idDepartamento = "${idDepartamento}"`
+  });
+  */
+  console.log("DatosOrden")
+  console.log(DatosOrden)
+  console.log(DatosOrden.length)
+  res.send({ ordenes: DatosOrden,cantidadOrdenes: DatosOrden.length })
+
+})
+
+//---------------------------------------------------------------------------------------------------------------------------//
+
 // -----------------------------------------------SOLICITUD CAMBIO DE ZONA-----------------------------------------------------------------------
 app.post('/CambiodeZona', async function (req, res) {
   const { usuario,
@@ -34,6 +176,10 @@ app.post('/CambiodeZona', async function (req, res) {
   const idCiudad = await query({
     sql: `SELECT idCiudad as id FROM Ciudad WHERE CiudadDsc = "${ciudad}"`
   })
+  console.log(idDepartamento)
+  console.log(idCiudad)
+  console.log(idDepartamento)
+  console.log(idCiudad)
   //Estados
   //0 - Pendiente
   //1 - Aceptado
@@ -41,7 +187,7 @@ app.post('/CambiodeZona', async function (req, res) {
 
   await query({
     sql: `INSERT INTO CambioZona(idRepartidor,Razon,Estado,idDepartamento,idCiudad) VALUES(?,?,?,?,?)`,
-    params: [idRepartidor, razonCambio, 0, idDepartamento, idCiudad]
+    params: [idRepartidor, razonCambio, 0, idDepartamento[0].id, idCiudad[0].id]
   })
   return res.send({ agregado: true, error: "" })
 });
@@ -67,7 +213,7 @@ app.post('/Informacion', async function (req, res) {
   })
   //Aqui falta ver lo de cuando el status este 
   const DatosOrdenes = await query({
-    sql: `SELECT * FROM Orden WHERE idRepartidor = "${datosRepartidor[0].idRepartidor}" AND OrdSt = "1"`
+>>>>>>> Stashed changes
   })
   let sumaCalificacion = 0;
   let promedio = 0;
@@ -205,14 +351,14 @@ app.post('/registroRepartidor', async function (req, res) {
     const fecha1 = fechaVencimiento;
     const fechaFormateada1 = format(new Date(fecha1), "yyyy-MM-dd");
     await query({
-      sql: `INSERT INTO RepLicencia(idRepartidor,idCiudad,idDepto,idPais,RepNumLic,RepTipoLic,RepFecExpLic) VALUES(?,?,?,?,?,?,?)`,
-      params: [idRepartidor[0].idRepartidor, idCiudad[0].id, idDepartamento[0].id, 1, noLicencia, licenseType, fechaFormateada1]
+      sql: `INSERT INTO RepLicencia(idRepartidor,RepNumLic,RepTipoLic,RepFecExpLic) VALUES(?,?,?,?)`,
+      params: [idRepartidor[0].idRepartidor, noLicencia, licenseType, fechaFormateada1]
     })
   }
   if (hasTransporte) {
     await query({
-      sql: `INSERT INTO RepVehiculo(VehPlacaNum,VehTipPlaca,idRepartidor,idCiudad,idDepto,idPais,RepVehiculoEst) VALUES(?,?,?,?,?,?,?)`,
-      params: [noPlaca, "M", idRepartidor[0].idRepartidor, idCiudad[0].id, idDepartamento[0].id, 1, 1]
+      sql: `INSERT INTO RepVehiculo(VehPlacaNum,VehTipPlaca,idRepartidor,RepVehiculoEst) VALUES(?,?,?,?)`,
+      params: [noPlaca, "M", idRepartidor[0].idRepartidor, 1]
     })
   }
   return res.send({ agregado: true, error: "" })

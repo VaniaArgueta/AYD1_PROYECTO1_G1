@@ -43,9 +43,9 @@ export const ModuloAcciones = (props) => {
     case 4:
       return <ReportesAdministrador />;
     case 5:
-      return <ListadoSolicitudEntrega />;
+      return <ListadoSolicitudEntrega datos={props}/>;
     case 6:
-      return <PedidosAsignados />;
+      return <PedidosAsignados datos={props}/>;
     case 7:
       return <PerfilRepartidor datos={props}/>;
     case 8:
