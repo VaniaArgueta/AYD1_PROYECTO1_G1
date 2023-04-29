@@ -637,7 +637,7 @@ app.get('/listaUsuarios', function (req, res) {
  */
 
 app.get('/listaRepartidores', function (req, res) {
-  conn.query('select rep.* from Repartidor rep where rep.RepEst = 1 and rep.idRepartidor not in (select idRepartidor from Orden where estadoPedido not in (0,1,2))',
+  conn.query('select rep.*,(select Pais from Pais where idPais = rep.idPais) as pais from Repartidor rep where rep.RepEst = 1 and rep.idRepartidor not in (select idRepartidor from Orden where estadoPedido not in (0,1,2))',
     function (err, results, fields) {
       if (err) throw err;
       else console.log('Selected ' + results.length + ' row(s).');
@@ -648,7 +648,7 @@ app.get('/listaRepartidores', function (req, res) {
 })
 
 app.get('/listaEmpresas', function (req, res) {
-  conn.query('select emp.* from Empresa emp where emp.EmpEst = 1 and emp.idEmpresa not in (select idEmpresa from Orden where estadoPedido not in (0,1,2))',
+  conn.query('select emp.*,(select Pais from Pais where idPais = emp.idPais) as pais from Empresa emp where emp.EmpEst = 1 and emp.idEmpresa not in (select idEmpresa from Orden where estadoPedido not in (0,1,2))',
     function (err, results, fields) {
       if (err) throw err;
       else console.log('Selected ' + results.length + ' row(s).');
